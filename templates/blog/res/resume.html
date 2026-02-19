@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Резюме — Костя</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background-color: #f9f9f9;
+      padding: 20px;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background-color: #fff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 10px;
+      color: #2c3e50;
+    }
+    h2 {
+      border-bottom: 2px solid #3498db;
+      padding-bottom: 5px;
+      margin: 25px 0 15px;
+      color: #2980b9;
+    }
+    p {
+      margin-bottom: 10px;
+    }
+    ul {
+      margin-left: 20px;
+      margin-bottom: 15px;
+    }
+    li {
+      margin-bottom: 5px;
+    }
+    .contact-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .contact-item::before {
+      content: "•";
+      color: #3498db;
+      font-weight: bold;
+      margin-right: 10px;
+    }
+    a {
+      color: #3498db;
+      textdecoration: none;
+    }
+    a:hover {
+      textdecoration: underline;
+    }
+    @media (max-width: 600px) {
+      .container {
+        padding: 20px;
+      }
+      h1 {
+        font-size: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Резюме</h1>
+    <p><strong>ФИО:</strong> Николаев К.В </p>
+    <p><strong>Цель:</strong> Получение позиции junior‑разработчика (full‑stack) или стажёра в IT‑компании; развитие навыков безопасной разработки и пентеста.</p>
+
+    <h2>Ключевые навыки</h2>
+    <ul>
+      <li><strong>Frontend:</strong> HTML, CSS, адаптивная вёрстка,изучаю JS</li>
+      <li><strong>Backend:</strong> Python (Django), работа с API (Stripe, OAuth‑авторизация).</li>
+      <li><strong>Базы данных:</strong> PostgreSQL/SQLite (на уровне CRUD‑операций).</li>
+      <li><strong>Безопасность:</strong> основы пентеста, практика безопасной разработки.</li>
+      <li><strong>Инструменты:</strong> Git, GitHub, Linux (командная строка).</li>
+      <li><strong>Английский язык:</strong> начальный уровень (понимание простых фраз и технической документации).</li>
+    </ul>
+
+
+    <h2>Опыт и проекты</h2>
+    <h3>1. Full‑stack веб‑приложения (Django)</h3>
+    <ul>
+      <li>Реализована <strong>система аутентификации</strong> (регистрация/вход, опциональная авторизация через GitHub и Google).</li>
+      <li>Интеграция <strong>платёжной системы Stripe</strong> (тестовые транзакции).</li>
+      <li>Управление контентом, CRUD‑операции.</li>
+      <li><a href="https://github.com/kostya300/st" target="_blank">Репозиторий</a></li>
+    </ul>
+
+
+    <h3>2. Вёрстка (HTML/CSS)</h3>
+    <ul>
+      <li><strong>Адаптивные сайты:</strong> 3 проекта с кросс‑браузерной вёрсткой и медиа‑запросами.
+        <ul>
+          <li><a href="https://kostya300.github.io/shop_main/" target="_blank">shop_main</a></li>
+          <li><a href="https://kostya300.github.io/faw1/" target="_blank">faw1</a></li>
+        </ul>
+      </li>
+      <li><strong>Многостраничный сайт</strong> (без адаптива):
+        <ul>
+          <li><a href="https://kostya300.github.io/store_clothes1/" target="_blank">store_clothes1</a></li>
+        </ul>
+      </li>
+    </ul>
+    <p>Все проекты размещены на <a href="https://github.com/kostya300" target="_blank">GitHub</a>.</p>
+
+
+    <h2>Образование и саморазвитие</h2>
+    <ul>
+      <li>Самостоятельное изучение <strong>full‑stack разработки</strong> (курсы, документация, практика).</li>
+      <li>Освоение жизненного цикла ПО: от проектирования до деплоя.</li>
+      <li>Изучение <strong>методов безопасной разработки</strong> (OWASP, защита от SQL‑инъекций, XSS).</li>
+      <li>Практика в <strong>пентестинге</strong> (базовые техники, инструменты Kali Linux).</li>
+      <li>Английский язык: ежедневная практика (Duolingo, чтение документации).</li>
+    </ul>
+
+    <h2>Личные качества</h2>
+    <ul>
+      <li>Аналитическое мышление, внимание к деталям.</li>
+      <li>Умение работать в команде.</li>
+      <li>Стремление к постоянному обучению и совершенствованию навыков.</li>
+      <li>Ответственность, инициативность, нацеленность на результат.</li>
+    </ul>
+
+
+    <h2>Контакты</h2>
+    <div class="contact-item">
+      <strong>GitHub:</strong> <a href="https://github.com/kostya300" target="_blank">github.com/kostya300</a>
+    </div>
+    <div class="contact-item">
+      <strong>Email:</strong> [укажите ваш email]
+    </div>
+    <div class="contact-item">
+      <strong>Telegram:</strong> [укажите никнейм]
+    </div>
+
+    <p><em>Готов к удалённой работе, стажировкам и проектам с наставником.</em></p>
+  </div>
+</body>
+</html>
