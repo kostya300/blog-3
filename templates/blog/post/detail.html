@@ -25,7 +25,7 @@
 		<div class="row pt-md-4">
 			<h1 class="mb-3">{{ post.title }}</h1>
 			<p>{{ post.body }}</p>
-			<p><img src="{% static 'images/qwe.jpg' %}" alt="" class="img-fluid"></p>
+			<p><img src="{{ post.image.url }}" alt="" class="img-fluid"></p>
 
 			<div class="tag-widget post-tag-container mb-5 mt-5">
 				<div class="tagcloud">

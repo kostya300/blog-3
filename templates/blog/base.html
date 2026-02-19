@@ -24,7 +24,7 @@
 	<link rel="stylesheet" href="{% static 'css/bootstrap-datepicker.css' %}">
 	<link rel="stylesheet" href="{% static 'css/jquery.timepicker.css' %}">
 
-
+	<link rel="stylesheet" href="{% static 'css/login.css' %}">
 	<link rel="stylesheet" href="{% static 'css/flaticon.css' %}">
 	<link rel="stylesheet" href="{% static 'css/icomoon.css' %}">
 	<link rel="stylesheet" href="{% static 'css/style.css' %}">
@@ -39,9 +39,9 @@
 			<ul>
 				<li class=""><a href="{% url 'blog:post_list' %}">Домашняя</a></li>
 
-				<li><a href="about.html">Личный</a></li>
+				<li><a href="{% url 'blog:login' %}">Личный</a></li>
 				<li><a href="contact.html">Связь</a></li>
-				<li><a href="login.html">Вход</a></li>
+				<li><a href="{% url 'blog:login' %}">Вход</a></li>
 				<li><a href="register.html">Регистрация</a></li>
 				<li><a href="{% url 'blog:about' %}">О нас</a></li>
 			</ul>
@@ -73,6 +73,7 @@
 					<!--start common-->
 					{% block content %}
 					{% endblock %}
+
 					<!--end common-->
 					<!-- START COL -->
 					{% block footer %}
