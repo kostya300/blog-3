@@ -1,0 +1,19 @@
+__pycache__/
+*.py[cod]
+# Кеши и временные файлы
+cache/
+tmp/
+
+# Файлы IDE
+.idea/
+.vscode/
+
+
+# Пакеты и сборки
+dist/
+build/
+*.egg-info/
+
+# Тестирование
+.coverage
+.pytest_cache/
