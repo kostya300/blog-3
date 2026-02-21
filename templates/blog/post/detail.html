@@ -30,10 +30,11 @@
 
 			<div class="tag-widget post-tag-container mb-5 mt-5">
 				<div class="tagcloud">
-					<a href="#" class="tag-cloud-link">Life</a>
-					<a href="#" class="tag-cloud-link">Sport</a>
-					<a href="#" class="tag-cloud-link">Tech</a>
-					<a href="#" class="tag-cloud-link">Travel</a>
+					{% for tag in post.tags.all %}
+						<a href="{% url 'blog:post_list_by_tag' tag.slug %}" class="tag-cloud-link">{{ tag.name }}</a>
+					{% empty %}
+						<span class="text-muted">Теги не указаны</span>
+					{% endfor %}
 				</div>
 			</div>
 
@@ -49,21 +50,21 @@
 			</div>
 			<div class="pt-5 mt-5">
 				{% with comments.count as total_comments %}
-					<h3 class="mb-5 font-weight-bold">{{ total_comments }} Comments</h3>
+					<h3 class="mb-5 font-weight-bold">{{ total_comments }} Комментарий</h3>
 				{% endwith %}
 				{% for comment in comments %}
 					<ul class="comment-list">
-					    <li class="comment">
-						<div class="vcard bio">
-							<img src="{{ post.image.url }}" alt="Image placeholder">
-						</div>
-						<div class="comment-body">
-							<h3>{{ comment.name }}</h3>
-							<div class="meta">{{ comment.created }}</div>
-							<p>{{ comment.body }}</p>
-							<p><a href="#" class="reply">Reply</a></p>
-						</div>
-					</li>
+						<li class="comment">
+							<div class="vcard bio">
+								<img src="{{ post.image.url }}" alt="Image placeholder">
+							</div>
+							<div class="comment-body">
+								<h3>{{ comment.name }}</h3>
+								<div class="meta">{{ comment.created }}</div>
+								<p>{{ comment.body }}</p>
+								<p><a href="#" class="reply">Ответить</a></p>
+							</div>
+						</li>
 					</ul>
 				{% empty %}
 					<p>Нет комментариев.</p>

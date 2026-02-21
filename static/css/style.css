@@ -9049,6 +9049,7 @@ textarea.form-control {
       width: 80px;
       float: left; }
       .comment-list li .vcard img {
+        height: 50px;
         width: 50px;
         border-radius: 50%; }
     .comment-list li .comment-body {
