@@ -6,6 +6,8 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 from pathlib import Path
 from django.urls import reverse
+from taggit.managers import TaggableManager
+
 
 def validate_image_file(image):
     # 1. Проверка расширения
@@ -33,6 +35,8 @@ def validate_image_file(image):
                 raise ValidationError('Файл не является корректным изображением.')
     except (IOError, SyntaxError):
         raise ValidationError('Загруженный файл не является корректным изображением или повреждён.')
+
+
 class PublishedManager(models.Manager):
     def get_queryset(self):
         return super().get_queryset().filter(status=Post.Status.PUBLISHED)
@@ -67,6 +71,7 @@ class Post(models.Model):
     )
     objects = models.Manager()
     published = PublishedManager()
+    tags = TaggableManager()
     class Meta:
         ordering = ['-publish']
         indexes = [
@@ -78,3 +83,18 @@ class Post(models.Model):
 
     def __str__(self):
         return self.title
+class Comment(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.PROTECT,related_name='comments')
+    name = models.CharField(max_length=80)
+    email = models.EmailField()
+    body = models.TextField()
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+    active = models.BooleanField(default=True)
+    class Meta:
+        ordering = ['created']
+        indexes = [
+            models.Index(fields=['created']),
+        ]
+    def __str__(self):
+        return f'Comment by {self.name} on {self.post}'
