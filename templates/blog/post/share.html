@@ -1,0 +1,58 @@
+{% extends 'blog/base.html' %}
+{% block content %}
+    <div class="comment-form-wrap pt-5" style="width: 100%">
+        {% if sent %}
+            <div class="alert alert-success">
+                <h1>✅ Письмо было успешно отправлено</h1>
+                <p>
+                    <strong>{{ form.cleaned_data.to }}</strong>.
+        </p>
+                <div class="action-buttons">
+                    <a href="{{ post.get_absolute_url }}" class="btn btn-primary">Назад к записи</a>
+                    <a href="{% url 'blog:post_share' post.id %}" class="btn btn-secondary">Поделится на почту</a>
+                </div>
+            </div>
+        {% else %}
+            <h3 class="mb-5">Поделится</h3>
+            <form method="post" class="p-3 p-md-5 bg-light">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    {{ form.name.label_tag }}
+                    {{ form.name }}
+                    {% if form.name.errors %}
+                <div class="error text-danger">{{ form.name.errors }}</div>
+            {% endif %}
+                </div>
+
+                <div class="form-group">
+            {{ form.email.label_tag }}
+            {{ form.email }}
+            {% if form.email.errors %}
+                <div class="error text-danger">{{ form.email.errors }}</div>
+            {% endif %}
+                </div>
+
+                <div class="form-group">
+            {{ form.to.label_tag }}
+            {{ form.to }}
+            {% if form.to.errors %}
+                <div class="error text-danger">{{ form.to.errors }}</div>
+            {% endif %}
+                </div>
+
+                <div class="form-group">
+            {{ form.comments.label_tag }}
+            {{ form.comments }}
+            {% if form.comments.errors %}
+                <div class="error text-danger">{{ form.comments.errors }}</div>
+            {% endif %}
+                </div>
+
+                <div class="form-group">
+            <input type="submit" value="Отправить" class="btn py-3 px-4 btn-primary">
+                </div>
+            </form>
+        {% endif %}
+    </div>
+{% endblock %}
