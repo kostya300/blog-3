@@ -1,8 +1,8 @@
 {% if comment %}
-    <h2>Your comment has been added.</h2>
+    <h2>Ваш комментарий добавлен.</h2>
 {% else %}
     <div class="comment-form-wrap pt-5" style="width: 100%">
-        <h3 class="mb-5">Комментарий</h3>
+        <h3 class="mb-5">Комментировать</h3>
         <form action="{% url 'blog:post_comment' post.id %}" method="post" class="p-3 p-md-5 bg-light">
             {% csrf_token %}
 
@@ -27,5 +27,3 @@
         </form>
     </div>
 {% endif %}
-
-<p><a href="{{ post.get_absolute_url }}">Назад к записи</a></p>
