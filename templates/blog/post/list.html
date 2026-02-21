@@ -42,7 +42,9 @@
 								<p class="meta">
 									<span><i class="icon-calendar mr-2"></i>{{ post.publish|date:"F d, Y" }}</span>
 									<span><a href="detail.html"><i class="icon-folder-o mr-2"></i>#Тэги</a></span>
-									<span><i class="icon-comment2 mr-2"></i>0 комментариев</span>
+
+									<span><i class="icon-comment2 mr-2"></i>{{ post.comments.count }} комментариев</span>
+
 								</p>
 							</div>
 							<p class="mb-4">{{ post.body|linebreaks|truncatewords_html:30 }}</p>

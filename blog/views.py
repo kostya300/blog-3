@@ -3,9 +3,9 @@ from django.core.paginator import Paginator, EmptyPage
 from django.views.generic import ListView
 from django.core.mail import send_mail
 from django.conf import settings
-from .forms import EmailPostForm
+from .forms import EmailPostForm,CommentForm
 from .models import Post
-
+from django.views.decorators.http import require_POST
 
 class PostListView(ListView):
     queryset = Post.published.all()
@@ -37,13 +37,38 @@ def post_share(request, post_id):
     else:
         form = EmailPostForm()
     return render(request, 'blog/post/share.html', {'post': post,
-                                                    'form': form,'sent': sent})
+                                                  'form': form,'sent': sent})
+@require_POST
+def post_comment(request, post_id):
+    post = get_object_or_404(Post, id=post_id, status=Post.Status.PUBLISHED)
+    comment = None
+    sent = False
 
+    if request.method == 'POST':
+        form = CommentForm(data=request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.post = post
+            comment.save()
+            sent = True
+            # Очищаем форму после успешного сохранения
+            form = CommentForm()  # или можно не передавать форму, если не нужно её показывать
+    else:
+        form = CommentForm()
+
+    return render(request, 'blog/post/includes/comment_form.html', {
+        'post': post,
+        'form': form,
+        'comment': comment,
+        'sent': sent
+    })
 
 def post_detail(request, year, month, day, slug):
     post = get_object_or_404(Post, status=Post.Status.PUBLISHED, slug=slug, publish__year=year, publish__month=month,
                              publish__day=day)
-    return render(request, 'blog/post/detail.html', {'post': post})
+    comments = post.comments.filter(active=True)
+    form = CommentForm()
+    return render(request, 'blog/post/detail.html', {'post': post,'comments': comments, 'form': form})
 
 
 def about(request):
