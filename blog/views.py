@@ -1,4 +1,4 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.views.generic import ListView
 from django.core.mail import send_mail
@@ -54,30 +54,30 @@ def post_share(request, post_id):
                                                   'form': form,'sent': sent})
 @require_POST
 def post_comment(request, post_id):
-    post = get_object_or_404(Post, id=post_id, status=Post.Status.PUBLISHED)
+    post = get_object_or_404(Post,
+                             id=post_id,
+                             status=Post.Status.PUBLISHED)
     comment = None
-    sent = False
+    # Комментарий был отправлен
+    form = CommentForm(data=request.POST)
+    if form.is_valid():
+        # Создать объект класса Comment, не сохраняя его в базе данных
+        comment = form.save(commit=False)
+        # Назначить пост комментарию
+        comment.post = post
+        # Сохранить комментарий в базе данных
+        comment.save()
 
-    if request.method == 'POST':
-        form = CommentForm(data=request.POST)
-        if form.is_valid():
-            comment = form.save(commit=False)
-            comment.post = post
-            comment.save()
-            sent = True
-            # Очищаем форму после успешного сохранения
-            form = CommentForm()  # или можно не передавать форму, если не нужно её показывать
-    else:
-        form = CommentForm()
-
-    return render(request, 'blog/post/includes/comment_form.html', {
-        'post': post,
-        'form': form,
-        'comment': comment,
-        'sent': sent
-    })
+        return redirect('blog:post_detail',
+                    year=post.publish.year,
+                    month=post.publish.month,
+                    day=post.publish.day,
+                    slug=post.slug)
+    return render(request, 'blog/post/includes/comment_form.html',
+                  {'post': post, 'form': form, 'comment': None})
 
 def post_detail(request, year, month, day, slug):
+
     post = get_object_or_404(Post, status=Post.Status.PUBLISHED, slug=slug, publish__year=year, publish__month=month,
                              publish__day=day)
     comments = post.comments.filter(active=True)

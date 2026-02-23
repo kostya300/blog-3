@@ -3,6 +3,7 @@ from PIL import Image
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models import Count
 from django.utils import timezone
 from pathlib import Path
 from django.urls import reverse
@@ -98,3 +99,4 @@ class Comment(models.Model):
         ]
     def __str__(self):
         return f'Comment by {self.name} on {self.post}'
+
