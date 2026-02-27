@@ -32,3 +32,12 @@
 ```bash
 git clone <URL-репозитория>
 cd Blog33
+
+
+python -m venv .venv
+source .venv/bin/activate
+или
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+
