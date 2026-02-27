@@ -55,6 +55,7 @@ class Post(models.Model):
         related_name='blog_posts'
     )
     body = models.TextField()
+    views = models.PositiveIntegerField(default=0)
     publish = models.DateTimeField(default=timezone.now)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -84,6 +85,7 @@ class Post(models.Model):
 
     def __str__(self):
         return self.title
+
 class Comment(models.Model):
     post = models.ForeignKey(Post, on_delete=models.PROTECT,related_name='comments')
     name = models.CharField(max_length=80)
