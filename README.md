@@ -35,7 +35,7 @@
 ### 1. Клонирование проекта
 
 ```bash
-git clone <URL-репозитория>
+git clone https://github.com/kostya300/blog-3.git
 cd Blog3
 
 
