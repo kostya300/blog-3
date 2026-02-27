@@ -7,6 +7,7 @@ from .forms import EmailPostForm,CommentForm
 from .models import Post
 from django.views.decorators.http import require_POST
 from taggit.models import Tag
+from django.db.models import Count
 
 def post_list(request, tag_slug=None):
     post_list = Post.published.all()
@@ -22,6 +23,7 @@ def post_list(request, tag_slug=None):
         posts = paginator.page(1)
     except EmptyPage:
         posts = paginator.page(paginator.num_pages)
+
     return render(request,
                   'blog/post/list.html',
                   {'posts': posts,
@@ -58,7 +60,6 @@ def post_comment(request, post_id):
                              id=post_id,
                              status=Post.Status.PUBLISHED)
     comment = None
-    # Комментарий был отправлен
     form = CommentForm(data=request.POST)
     if form.is_valid():
         # Создать объект класса Comment, не сохраняя его в базе данных
@@ -82,7 +83,11 @@ def post_detail(request, year, month, day, slug):
                              publish__day=day)
     comments = post.comments.filter(active=True)
     form = CommentForm()
-    return render(request, 'blog/post/detail.html', {'post': post,'comments': comments, 'form': form})
+    post_tags_ids = post.tags.values_list('id', flat=True)
+    similar_posts = Post.published.filter(tags__in=post_tags_ids) \
+        .exclude(id=post.id)
+    similar_posts = similar_posts.annotate(same_tags=Count('tags')).order_by('-same_tags','-publish')[:4]
+    return render(request, 'blog/post/detail.html', {'post': post,'comments': comments, 'form': form, 'similar_posts': similar_posts})
 
 
 def about(request):
