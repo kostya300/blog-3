@@ -3,11 +3,13 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.views.generic import ListView
 from django.core.mail import send_mail
 from django.conf import settings
-from .forms import EmailPostForm,CommentForm
+from django.contrib.postgres.search import SearchVector
+from .forms import EmailPostForm,CommentForm,SearchForm
 from .models import Post
 from django.views.decorators.http import require_POST
 from taggit.models import Tag
 from django.db.models import Count, F
+from .utils import get_comment_word
 
 
 def post_list(request, tag_slug=None):
@@ -32,6 +34,22 @@ def post_list(request, tag_slug=None):
                   {'posts': posts,
                    'tag': tag,'popular_posts': popular_posts})
 
+
+def post_search(request):
+    form = SearchForm()
+    query = None
+    results = []
+    if 'query' in request.GET:
+        form = SearchForm(request.GET)
+        if form.is_valid():
+            query = form.cleaned_data['query']
+            results = Post.published.annotate(
+                search=SearchVector('title', 'body')
+            ).filter(search=query)
+    return render(request,'blog/post/search.html',
+                  {'form': form,
+                   'query': query,
+                   'results': results})
 
 def post_share(request, post_id):
     # Извлечь пост по идентификатору id
@@ -85,13 +103,15 @@ def post_detail(request, year, month, day, slug):
     post = get_object_or_404(Post, status=Post.Status.PUBLISHED, slug=slug, publish__year=year, publish__month=month,
                              publish__day=day)
     comments = post.comments.filter(active=True)
+    total_comments = comments.count()
     form = CommentForm()
     post_tags_ids = post.tags.values_list('id', flat=True)
     similar_posts = Post.published.filter(tags__in=post_tags_ids) \
         .exclude(id=post.id)
     similar_posts = similar_posts.annotate(same_tags=Count('tags')).order_by('-same_tags','-publish')[:4]
     Post.objects.filter(id=post.id).update(views=F('views') + 1)
-    return render(request, 'blog/post/detail.html', {'post': post,'comments': comments, 'form': form, 'similar_posts': similar_posts})
+    comment_word = get_comment_word(total_comments)
+    return render(request, 'blog/post/detail.html', {'post': post,'comments': comments, 'form': form, 'similar_posts': similar_posts,'total_comments': total_comments, 'comment_word': comment_word})
 
 
 def about(request):

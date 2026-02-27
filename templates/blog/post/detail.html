@@ -1,6 +1,10 @@
+
 {% extends 'blog/base.html' %}
+
 {% load static %}
+
 {% block content %}
+
 	<div class="col-lg-8 px-md-5 py-5">
 		<div class="row pt-md-4">
 			<h1 class="mb-3">{{ post.title }}</h1>
@@ -30,7 +34,7 @@
 			</div>
 			<div class="pt-5 mt-5">
 				{% with comments.count as total_comments %}
-					<h3 class="mb-5 font-weight-bold">{{ total_comments }} Комментарий</h3>
+					<h3 class="mb-5 font-weight-bold">{{ comment_word }}</h3>
 				{% endwith %}
 {#				<h2>Similar posts</h2>#}
 {#				{% for post in similar_posts %}#}

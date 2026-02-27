@@ -1,5 +1,6 @@
 from .models import Post
 from django import template
+from .forms import SearchForm
 from django.db.models import Count
 from taggit.models import Tag
 def popular_posts(request):
@@ -7,7 +8,8 @@ def popular_posts(request):
         comment_count=Count('comments')
     ).order_by('-comment_count')[:5]
     return {'popular_posts': popular_posts}
-
+def search_form(request):
+    return {'search_form': SearchForm()}
 
 # register = template.Library()
 # @register.inclusion_tag('blog/post/includes/tag_cloud.html')

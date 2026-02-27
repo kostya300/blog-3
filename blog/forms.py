@@ -37,6 +37,13 @@ class EmailPostForm(forms.Form):
         }),
         label='Сообщение'
     )
+
+class SearchForm(forms.Form):
+    query = forms.CharField(label='',widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Поиск'
+        }))
+
 class CommentForm(forms.ModelForm):
     class Meta:
         model = Comment
