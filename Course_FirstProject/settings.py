@@ -37,8 +37,12 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "blog.apps.BlogConfig",
     'taggit',
+    'django.contrib.sites',
+    'django.contrib.sitemaps',
+    'django.contrib.postgres',
 ]
 
+SITE_ID = 1
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -63,6 +67,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "blog.context_processors.popular_posts",
+                'blog.context_processors.search_form',
 
             ],
         },
@@ -75,9 +80,13 @@ WSGI_APPLICATION = "Course_FirstProject.wsgi.application"
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'blog_2',
+        'USER': 'blog_2',
+        'PASSWORD': '21',
+        'HOST': '127.0.0.1',
+        'PORT': '5432',
     }
 }
 
