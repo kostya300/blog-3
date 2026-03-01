@@ -21,10 +21,11 @@ class CustomLoginForm(AuthenticationForm):
     )
     remember_me = forms.BooleanField(
         required=False,
-        initial=False,
         widget=forms.CheckboxInput(attrs={
-            'class': 'form-check-input'
-        })
+            'class': 'form-check-input',  # CSS‑класс для стилизации
+            'id': 'rememberMe'  # уникальный id для связи с label
+        }),
+        label='Remember me'  # метка прямо в поле формы
     )
 
     def clean(self):
