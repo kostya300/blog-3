@@ -4,8 +4,7 @@ from django.views import generic
 from django.contrib.auth import login
 from django.urls import reverse_lazy
 from django.views import generic
-from .forms import CustomLoginForm
-# Create your views here.
+from .forms import CustomLoginForm,SignUpForm
 
 class LoginView(generic.FormView):
     form_class = CustomLoginForm
@@ -22,3 +21,11 @@ class LoginView(generic.FormView):
             self.request.session.set_expiry(0)
 
         return super().form_valid(form)
+class SignUpView(generic.CreateView):
+    form_class = SignUpForm
+    success_url = reverse_lazy('accounts:login')
+    template_name = 'registration/signup.html'
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        return response
