@@ -3,7 +3,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.views.generic import ListView
 from django.core.mail import send_mail
 from django.conf import settings
-from django.contrib.postgres.search import SearchVector
+from django.contrib.postgres.search import SearchVector,SearchQuery,SearchRank
 from .forms import EmailPostForm,CommentForm,SearchForm
 from .models import Post
 from django.views.decorators.http import require_POST
@@ -43,9 +43,13 @@ def post_search(request):
         form = SearchForm(request.GET)
         if form.is_valid():
             query = form.cleaned_data['query']
+            search_vector = SearchVector('title', 'body')
+            search_query = SearchQuery(query)
             results = Post.published.annotate(
-                search=SearchVector('title', 'body')
-            ).filter(search=query)
+                search = search_vector,
+                rank=SearchRank(search_vector, search_query)
+            ).filter(search=search_query).order_by('-rank')
+
     return render(request,'blog/post/search.html',
                   {'form': form,
                    'query': query,
@@ -100,7 +104,7 @@ def post_comment(request, post_id):
 
 def post_detail(request, year, month, day, slug):
 
-    post = get_object_or_404(Post, status=Post.Status.PUBLISHED, slug=slug, publish__year=year, publish__month=month,
+    post = get_object_or_404(Post.published, status=Post.Status.PUBLISHED, slug=slug, publish__year=year, publish__month=month,
                              publish__day=day)
     comments = post.comments.filter(active=True)
     total_comments = comments.count()
@@ -119,7 +123,7 @@ def about(request):
 
 
 def login(request):
-    return render(request, 'blog/users/login.html')
+    return render(request, 'blog/accounts/templates/accounts/../templates/blog/login.html')
 def travel(request):
     post_list = Post.published.all()
     paginator = Paginator(post_list, 3)
