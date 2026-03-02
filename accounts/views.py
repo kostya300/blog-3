@@ -1,19 +1,49 @@
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.contrib.auth.views import LoginView
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordChangeForm
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.views import generic
 from django.contrib.auth import login
-from django.urls import reverse_lazy
-from django.views import generic
 from django.contrib import messages
+from .forms import CustomLoginForm, SignUpForm,UpdateUserForm,UpdateProfileForm
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.views import PasswordChangeView
+from django.contrib.messages.views import SuccessMessageMixin
 
-from .forms import CustomLoginForm,SignUpForm
+@login_required
+def profile(request):
+    if request.method == 'POST':
+        user_form = UpdateUserForm(request.POST, instance=request.user)
+        profile_form = UpdateProfileForm(
+            request.POST,
+            request.FILES,
+            instance=request.user.profile
+        )
+        if user_form.is_valid() and profile_form.is_valid():
+            user_form.save()
+            profile_form.save()
+            messages.success(request, 'Профиль успешно обновлён')
+            return redirect('accounts:users-profile')
+        else:
+            messages.error(request, 'Пожалуйста, исправьте ошибки ниже.')
+    else:
+        user_form = UpdateUserForm(instance=request.user)
+        profile_form = UpdateProfileForm(instance=request.user.profile)
 
-class LoginView(generic.FormView):
+    return render(
+        request,
+        'registration/profile.html',
+        {'user_form': user_form, 'profile_form': profile_form}
+    )
+class CustomLoginView(generic.FormView):
     form_class = CustomLoginForm
     template_name = 'registration/login.html'
     success_url = reverse_lazy('blog:post_list')
+
+    def get_form_kwargs(self):
+        """Передаём request в форму для обработки remember_me"""
+        kwargs = super().get_form_kwargs()
+        kwargs['request'] = self.request
+        return kwargs
 
     def form_valid(self, form):
         user = form.get_user()
@@ -21,48 +51,56 @@ class LoginView(generic.FormView):
 
         # Обработка remember_me
         remember_me = form.cleaned_data.get('remember_me')
-        if not remember_me:
+        if remember_me:
+            # Устанавливаем длительное время жизни сессии (2 недели)
+            self.request.session.set_expiry(1209600)  # 2 недели в секундах
+        else:
+            # Сессия закрывается при закрытии браузера
             self.request.session.set_expiry(0)
+
+        messages.success(self.request, 'Вы успешно вошли в систему!')
+        return redirect(self.get_success_url())
+
+    def form_invalid(self, form):
+        messages.error(self.request, 'Ошибка входа. Проверьте данные.')
+        return super().form_invalid(form)
+
+
+
+class SignUpView(generic.CreateView):
+    form_class = SignUpForm
+    template_name = 'registration/signup.html'
+    success_url = reverse_lazy('accounts:login')
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            messages.info(request, 'Вы уже авторизованы.')
+            return redirect(self.success_url)
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        # Сохраняем пользователя
+        user = form.save()
+
+        # Автоматически авторизуем пользователя после регистрации
+        login(self.request, user)
+
+        username = form.cleaned_data.get('username')
+        messages.success(
+            self.request,
+            f'Добро пожаловать, {username}! Ваш аккаунт успешно создан.'
+        )
 
         return super().form_valid(form)
 
-class CustomLoginView(LoginView):
-    form_class = CustomLoginForm
+    def form_invalid(self, form):
+        messages.error(
+            self.request,
+            'Ошибка регистрации. Проверьте введённые данные.'
+        )
+        return super().form_invalid(form)
+class ChangePasswordView(SuccessMessageMixin,PasswordChangeView):
+    template_name = 'registration/change_password.html'
+    success_message = 'Successfully Changed Your Password'
+    success_url = reverse_lazy('accounts:users-profile')
 
-    def form_valid(self, form):
-        remember_me = form.cleaned_data.get('remember_me')
-
-        if not remember_me:
-            # Установим время истечения сеанса равным 0 секундам. Таким образом, он автоматически закроет сеанс после закрытия браузера. И обновим данные.
-            self.request.session.set_expiry(0)
-            self.request.session.modified = True
-
-        # В противном случае сеанс браузера будет таким же как время сеанса cookie "SESSION_COOKIE_AGE", определенное в settings.py
-        return super(CustomLoginView, self).form_valid(form)
-class SignUpView(generic.CreateView):
-    form_class = SignUpForm
-    initial = None
-    template_name = 'registration/signup.html'
-    def dispatch(self, request, *args, **kwargs):
-        if request.user.is_authenticated:
-            return redirect(to='blog:post_list')
-        return super(SignUpView, self).dispatch(request, *args, **kwargs)
-    def get(self, request, *args, **kwargs):
-        form = self.form_class(initial=self.initial)
-        return render(request, self.template_name, {'form': form})
-
-    def post(self, request, *args, **kwargs):
-        form = self.form_class(request.POST)
-
-        if form.is_valid():
-            form.save()
-
-            username = form.cleaned_data.get('username')
-            messages.success(request, f'Account created for {username}')
-
-            return redirect(to='login')
-
-        return render(request, self.template_name, {'form': form})
-    def form_valid(self, form):
-        response = super().form_valid(form)
-        return response

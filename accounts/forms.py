@@ -2,6 +2,44 @@ from django import forms
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
+from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
+from django.core.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _
+from .models import Profile
+
+class CustomSetPasswordForm(SetPasswordForm):
+    new_password1 = forms.CharField(label='Новый пароль', widget=forms.PasswordInput(attrs={'class': 'form-control input-field','placeholder': 'Введите новый пароль','required': True,
+            'id': 'id_new_password1'}))
+    new_password2 = forms.CharField(
+        label='Подтверждение пароля',
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control input-field',
+            'placeholder': 'Повторите новый пароль',
+            'required': True,
+            'id': 'id_new_password2'
+        })
+    )
+    def clean_new_password2(self):
+        password1 = self.cleaned_data.get('new_password1')
+        password2 = self.cleaned_data.get('new_password2')
+        if password1 and password2:
+            if password1 != password2:
+                raise ValidationError(
+                    _('Введённые пароли не совпадают.'),
+                    code='password_mismatch'
+                )
+
+
+class CustomPasswordResetForm(PasswordResetForm):
+    email = forms.EmailField(
+        label='Адрес электронной почты',
+        max_length=254,
+        widget=forms.EmailInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Введите ваш email',
+            'required': True,
+        })
+    )
 
 
 class CustomLoginForm(AuthenticationForm):
@@ -22,10 +60,9 @@ class CustomLoginForm(AuthenticationForm):
     remember_me = forms.BooleanField(
         required=False,
         widget=forms.CheckboxInput(attrs={
-            'class': 'form-check-input',  # CSS‑класс для стилизации
-            'id': 'rememberMe'  # уникальный id для связи с label
+            'class': 'form-check-input',
         }),
-        label='Remember me'  # метка прямо в поле формы
+        label='Remember me'
     )
 
     def clean(self):
@@ -92,3 +129,34 @@ class SignUpForm(UserCreationForm):
         if commit:
             user.save()
         return user
+
+class UpdateUserForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['username', 'email']
+
+class UpdateProfileForm(forms.ModelForm):
+    phone_number = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control underline-input', 'placeholder': '+7 (999) 123-45-67'}),
+        label='Телефон'
+    )
+    bio = forms.CharField(
+        widget=forms.Textarea(attrs={'rows': 5, 'class': 'form-control', 'placeholder': 'О себе'}),
+        required=False,
+        label='Биография'
+    )
+    profession = forms.CharField(
+        widget=forms.TextInput(attrs={'class': 'form-control underline-input', 'placeholder': 'Профессия'}),
+        required=False,
+        label='Профессия'
+    )
+    avatar = forms.ImageField(
+        widget=forms.FileInput(attrs={'class': 'form-control underline-input'}),
+        required=False,
+        label='Аватар'
+    )
+
+    class Meta:
+        model = Profile
+        fields = ['phone_number', 'bio', 'profession', 'avatar']

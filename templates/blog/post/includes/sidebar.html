@@ -29,7 +29,7 @@
 					</h3>
 					<div class="meta">
 						<div><a href="#"><span class="icon-calendar"></span>{{ post.publish|date:"F d, Y" }}</a></div>
-						<div><a href="#"><span class="icon-person"></span>Dave Lewis</a></div>
+						<div><a href="#"><span class="icon-person"></span>{{ post.author }}</a></div>
 						<div><a href="#"><span class="icon-chat"></span> {{ post.comments.count }}</a></div>
 					</div>
 				</div>
@@ -89,7 +89,7 @@
 						<div class="meta">
 							<div><a href="#"><span class="icon-calendar"></span>{{ post.publish|date:"F d, Y" }}</a>
 							</div>
-							<div><a href="#"><span class="icon-person"></span>Dave Lewis</a></div>
+							<div><a href="#"><span class="icon-person"></span>{{ post.author }}</a></div>
 							<div><a href="#"><span class="icon-chat"></span> {{ post.comments.count }}</a></div>
 						</div>
 					</div>

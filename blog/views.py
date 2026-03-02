@@ -115,15 +115,14 @@ def post_detail(request, year, month, day, slug):
     similar_posts = similar_posts.annotate(same_tags=Count('tags')).order_by('-same_tags','-publish')[:4]
     Post.objects.filter(id=post.id).update(views=F('views') + 1)
     comment_word = get_comment_word(total_comments)
-    return render(request, 'blog/post/detail.html', {'post': post,'comments': comments, 'form': form, 'similar_posts': similar_posts,'total_comments': total_comments, 'comment_word': comment_word})
+    return render(request, 'blog/post/detail.html', {'post': post,'comments': comments, 'form': form, 'similar_posts': similar_posts,'total_comments': total_comments, 'comment_word': comment_word,'current_user': request.user,})
 
 
 def about(request):
     return render(request, 'blog/post/about.html')
 
 
-def login(request):
-    return render(request, 'blog/accounts/templates/accounts/../templates/blog/login.html')
+
 def travel(request):
     post_list = Post.published.all()
     paginator = Paginator(post_list, 3)

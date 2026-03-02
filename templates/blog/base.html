@@ -23,6 +23,7 @@
 
 	<link rel="stylesheet" href="{% static 'css/bootstrap-datepicker.css' %}">
 	<link rel="stylesheet" href="{% static 'css/jquery.timepicker.css' %}">
+	<link rel="stylesheet" href="{% static 'css/profile.css' %}">
 
 	<link rel="stylesheet" href="{% static 'css/login.css' %}">
 	<link rel="stylesheet" href="{% static 'css/flaticon.css' %}">
@@ -46,6 +47,8 @@
 					<form action="{% url 'logout' %}" method="post">
 						{% csrf_token %}
 						<a href="#" onclick="parentNode.submit();">Выйти</a>
+						<li><a href="{% url 'accounts:users-profile' %}">Личный</a></li>
+
 					</form>
 				{% else %}
 					<p>Вы не вошли</p>
@@ -53,9 +56,8 @@
 				{% endif %}
 				</li>
 				<li class=""><a href="{% url 'blog:post_list' %}">Домашняя</a></li>
-				<li><a href="">Личный</a></li>
 				<li><a href="{% url 'blog:travel' %}">Посты</a></li>
-				<li><a href="{% url 'blog:about' %}">О нас</a></li>
+				<li><a href="{% url 'blog:about' %}">Инфо</a></li>
 			</ul>
 		</nav>
 

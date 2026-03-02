@@ -195,16 +195,17 @@
 		background: rgba(0, 255, 0, 0.1);
 		border-bottom: 2px solid #00ff00;
 	}
-	.form-check {
-    display: flex;
-    align-items: center;
-    margin-bottom: 1rem;
-}
 
-.form-check-label {
-    margin-left: 0.5rem;
-    cursor: pointer;
-}
+	.form-check {
+		display: flex;
+		align-items: center;
+		margin-bottom: 1rem;
+	}
+
+	.form-check-label {
+		margin-left: 0.5rem;
+		cursor: pointer;
+	}
 </style>
 <!-- partial:index.partial.html -->
 <div class="wrapper">
@@ -240,7 +241,9 @@
 			<!-- Чекбокс "Запомнить меня" и ссылка "Забыли пароль" -->
 			<div class="remember-forgot">
 				{{ form.remember_me }}
-				<label>{{ form.remember_me.id_for_label }} Remember me</label>
+				<label for="{{ form.remember_me.id_for_label }}" class="checkbox-label" aria-label="Remember me">
+					Запомнить меня
+				</label>
 				<a href="{% url 'password_reset' %}">Забыли пароль?</a>
 			</div>
 

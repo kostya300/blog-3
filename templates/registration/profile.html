@@ -1,0 +1,167 @@
+{% extends 'blog/base.html' %}
+{% load static %}
+{% load form_extras %}
+{% block css %}
+	<link rel="stylesheet" href="{% static 'css/profile.css' %}">
+{% endblock %}
+{% block content %}
+	<style>
+		#id_avatar {
+			color: transparent;
+			width: 1px;
+			height: 1px;
+			opacity: 0;
+			position: absolute;
+		}
+
+		.file-container {
+			position: relative;
+			display: inline-block;
+		}
+	</style>
+	<div class="container emp-profile mt-4">
+		<form method="post" enctype="multipart/form-data">
+			{% csrf_token %}
+
+			<!-- Вывод сообщений -->
+			{% if messages %}
+				<div class="alert alert-success">
+					{% for message in messages %}
+						{{ message }}
+					{% endfor %}
+				</div>
+			{% endif %}
+
+			<!-- Ошибки формы -->
+			{% if user_form.errors or profile_form.errors %}
+				<div class="alert alert-danger">
+					Пожалуйста, исправьте ошибки в форме.
+				</div>
+			{% endif %}
+
+			<div class="row">
+				<!-- Блок аватара -->
+				<div class="col-md-4">
+					<div class="profile-img text-center">
+						{% if profile_form.instance.avatar %}
+							<img src="{{ profile_form.instance.avatar.url }}"
+							     alt="Аватар" class="img-thumbnail mb-2" width="150">
+						{% else %}
+							<img src="{% static 'images/default-avatar.jpg' %}"
+							     alt="Аватар по умолчанию" class="img-thumbnail mb-2" width="150">
+						{% endif %}
+						<div class="file-container">
+							<label for="id_avatar" class="btn btn-primary">Загрузить аватар</label>
+							{{ profile_form.avatar }}
+						</div>
+
+					</div>
+				</div>
+
+				<!-- Основная информация -->
+				<div class="col-md-6">
+					<div class="profile-head">
+						<h5>{{ user.username }}</h5>
+						<h6>{{ profile_form.profession.value|default:"Не указана" }}</h6>
+						<ul class="nav nav-tabs" id="myTab" role="tablist">
+							<li class="nav-item">
+								<a class="nav-link active" id="home-tab" data-toggle="tab"
+								   href="#home" role="tab">О себе</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link" id="profile-tab" data-toggle="tab"
+								   href="#profile" role="tab">Информация</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+
+				<!-- Кнопка сохранения -->
+				<div class="col-md-2">
+					<button type="submit" class="btn btn-primary profile-edit-btn">
+						Сохранить
+					</button>
+				</div>
+			</div>
+
+			<div class="row mt-4">
+				<div class="col-md-8 offset-md-2">
+					<div class="tab-content profile-tab" id="myTabContent">
+
+						<!-- Вкладка «О себе» -->
+						<div class="tab-pane fade show active" id="home" role="tabpanel">
+							<div class="row mb-3">
+								<div class="col-md-4">
+									<label for="{{ user_form.username.id_for_label }}"
+									       class="form-label">Имя</label>
+								</div>
+								<div class="col-md-8">
+									{{ user_form.username }}
+									{% if user_form.username.errors %}
+										<div class="text-danger">{{ user_form.username.errors }}</div>
+									{% endif %}
+								</div>
+							</div>
+
+							<div class="row mb-3">
+								<div class="col-md-4">
+									<label for="{{ user_form.email.id_for_label }}"
+									       class="form-label">Email</label>
+								</div>
+								<div class="col-md-8">
+									{{ user_form.email }}
+									{% if user_form.email.errors %}
+										<div class="text-danger">{{ user_form.email.errors }}</div>
+									{% endif %}
+								</div>
+							</div>
+
+							<div class="row mb-3">
+								<div class="col-md-4">
+									<label for="{{ profile_form.phone_number.id_for_label }}"
+									       class="form-label">Телефон</label>
+								</div>
+								<div class="col-md-8">
+
+									{{ profile_form.phone_number.as_widget|safe }}
+
+									{% if profile_form.phone_number.errors %}
+										<div class="text-danger">{{ profile_form.phone_number.errors }}</div>
+									{% endif %}
+								</div>
+							</div>
+
+
+							<div class="row mb-3">
+								<div class="col-md-4">
+									<label for="{{ profile_form.profession.id_for_label }}"
+									       class="form-label">Профессия:</label>
+								</div>
+								<div class="col-md-8">
+									{{ profile_form.profession.as_widget|safe }}
+									{% if profile_form.profession.errors %}
+										<div class="text-danger">{{ profile_form.profession.errors }}</div>
+									{% endif %}
+								</div>
+							</div>
+						</div>
+
+						<!-- Вкладка «Информация» -->
+						<div class="tab-pane fade" id="profile" role="tabpanel">
+							<div class="row mb-3">
+								<div class="col-md-12">
+									<label for="{{ profile_form.bio.id_for_label }}"
+									       class="form-label">Биография:</label>
+									{{ profile_form.bio }}
+									{% if profile_form.bio.errors %}
+										<div class="text-danger">{{ profile_form.bio.errors }}</div>
+									{% endif %}
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</form>
+	</div>
+{% endblock %}
