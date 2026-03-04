@@ -21,10 +21,9 @@ class Profile(models.Model):
     bio = models.TextField(max_length=500, blank=True)
     profession = models.TextField(max_length=500, blank=True)
     avatar = models.ImageField(
-        upload_to='profile_images/',
-        null=True,
-        blank=True,
-        default='default.jpg'
+        upload_to='avatars/',
+        default='default.jpg',
+        blank=True
     )
     def __str__(self):
         return self.user.username
@@ -32,9 +31,12 @@ class Profile(models.Model):
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
 
-        img = Image.open(self.avatar.path)
+        try:
+            img = Image.open(self.avatar.path)
 
-        if img.height > 100 or img.width > 100:
-            new_img = (100, 100)
-            img.thumbnail(new_img)
-            img.save(self.avatar.path)
+            if img.height > 100 or img.width > 100:
+                new_img = (100, 100)
+                img.thumbnail(new_img)
+                img.save(self.avatar.path)
+        except FileNotFoundError:
+            print(f"Файл {self.avatar.path} не найден. Используется аватар по умолчанию.")

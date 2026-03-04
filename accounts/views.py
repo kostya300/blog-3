@@ -102,5 +102,5 @@ class SignUpView(generic.CreateView):
 class ChangePasswordView(SuccessMessageMixin,PasswordChangeView):
     template_name = 'registration/change_password.html'
     success_message = 'Successfully Changed Your Password'
-    success_url = reverse_lazy('accounts:users-profile')
+    success_url = reverse_lazy('users-profile')
 

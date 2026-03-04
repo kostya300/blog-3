@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 	<meta charset="UTF-8">
 	<title>Вход</title>
+
 </head>
 <body>
 <style>
@@ -262,6 +264,14 @@
 			<!-- Ссылка на регистрацию -->
 			<div class="register-link">
 				<p>Нет аккаунта? <a href="{% url 'accounts:signup' %}">Регистрация</a></p>
+			</div>
+			<div style="display: flex;">
+				<a href="{% url 'social:begin' 'github' %}" class="btn btn-github" style="text-decoration: none;padding: 15px 15px;">
+				<i class="fab fa-github"></i>GitHub
+			</a>
+			<a href="{% url 'social:begin' 'google-oauth2' %}" class="btn btn-google" style="text-decoration: none;padding: 15px 15px;">
+				<i class="fab fa-google"></i>Google
+			</a>
 			</div>
 		</form>
 	</div>

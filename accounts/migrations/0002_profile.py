@@ -35,7 +35,7 @@ class Migration(migrations.Migration):
                         blank=True,
                         default="default.jpg",
                         null=True,
-                        upload_to="profile_images",
+                        upload_to="avatars",
                     ),
                 ),
                 (
