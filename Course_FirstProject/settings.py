@@ -144,7 +144,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 # start oauth git and google
-SECRET_KEY = "django-insecure-$$+^w-oey%984dt(jb-!qiz52)8e103wrty9h3+d0i^nlqcst@"
 SOCIAL_AUTH_GITHUB_KEY = 'Ov23liGhCo13unikBt9H'
 SOCIAL_AUTH_GITHUB_SECRET = '421645f129830499b6a4209ca797c5e8aabf6be7'
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '48328434690-kcqd4cemubfamc78t3363uh0q755skr7.apps.googleusercontent.com'
