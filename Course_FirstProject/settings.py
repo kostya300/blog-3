@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     'accounts.apps.AccountsConfig',
     'social_django',
     'django_bootstrap5',
+    'rest_framework',
+    'blog_api.apps.BlogApiConfig',
 ]
 
 SITE_ID = 1
@@ -99,7 +101,11 @@ DATABASES = {
         'PORT': '5432',
     }
 }
-
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+    ]
+}
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 # Конфигурация сервера электронной почты
@@ -144,7 +150,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 # start oauth git and google
-
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = [BASE_DIR / 'static']
@@ -152,6 +157,8 @@ LOGIN_URL = '/accounts/login/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-SESSION_COOKIE_AGE = 60 * 60 * 24 * 30
+SESSION_COOKIE_AGE = 1209600
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_DOMAIN = None
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = "/"

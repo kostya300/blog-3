@@ -43,13 +43,9 @@
 				<!-- Блок аватара -->
 				<div class="col-md-4">
 					<div class="profile-img text-center">
-						{% if profile_form.instance.avatar %}
-							<img src="{{ profile_form.instance.avatar.url }}"
-							     alt="Аватар" class="img-thumbnail mb-2" width="150">
-						{% else %}
-							<img src="{% static 'images/default-avatar.jpg' %}"
-							     alt="Аватар по умолчанию" class="img-thumbnail mb-2" width="150">
-						{% endif %}
+
+							<img src="{{ user.profile.avatar.url }}" alt="Аватар" class="img-thumbnail mb-2" width="150">
+
 						<div class="file-container">
 							<label for="id_avatar" class="btn btn-primary">Загрузить аватар</label>
 							{{ profile_form.avatar }}

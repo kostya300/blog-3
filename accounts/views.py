@@ -53,7 +53,8 @@ class CustomLoginView(generic.FormView):
         remember_me = form.cleaned_data.get('remember_me')
         if remember_me:
             # Устанавливаем длительное время жизни сессии (2 недели)
-            self.request.session.set_expiry(1209600)  # 2 недели в секундах
+            self.request.session.set_expiry(1209600)
+            self.request.session.set_test_cookie()# 2 недели в секундах
         else:
             # Сессия закрывается при закрытии браузера
             self.request.session.set_expiry(0)
