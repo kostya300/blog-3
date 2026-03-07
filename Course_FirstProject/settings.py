@@ -103,9 +103,20 @@ DATABASES = {
 }
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': [
-        'rest_framework.permissions.AllowAny',
-    ]
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',  # для веб‑интерфейса API
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',  # права доступа
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10,
 }
+
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 # Конфигурация сервера электронной почты
@@ -150,7 +161,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 # start oauth git and google
-
+SOCIAL_AUTH_GITHUB_KEY = 'Ov23liGhCo13unikBt9H'
+SOCIAL_AUTH_GITHUB_SECRET = '421645f129830499b6a4209ca797c5e8aabf6be7'
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '48328434690-kcqd4cemubfamc78t3363uh0q755skr7.apps.googleusercontent.com'
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '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'
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = [BASE_DIR / 'static']

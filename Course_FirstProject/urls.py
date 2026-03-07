@@ -33,7 +33,7 @@ urlpatterns = [
     path('accounts/', include('accounts.urls', namespace='accounts')),
     path('accounts/', include('django.contrib.auth.urls')),
     path('oauth/', include('social_django.urls', namespace='social')),
-    path('api/', include('blog_api.urls', namespace='api')),
+    path('api/', include('blog_api.urls')),
 ]
 
 if settings.DEBUG:
