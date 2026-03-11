@@ -12,6 +12,7 @@ from django.db.models import Count, F
 from .utils import get_comment_word
 
 
+
 def post_list(request, tag_slug=None):
     post_list = Post.published.all()
     tag = None
