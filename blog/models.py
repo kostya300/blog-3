@@ -8,7 +8,7 @@ from django.utils import timezone
 from pathlib import Path
 from django.urls import reverse
 from taggit.managers import TaggableManager
-
+from mptt.models import MPTTModel, TreeForeignKey
 def validate_image_file(file):
     # Проверка расширения
     if not file.name.lower().endswith(('.jpg', '.jpeg', '.png')):
@@ -31,7 +31,39 @@ class PublishedManager(models.Manager):
     def get_queryset(self):
         return super().get_queryset().filter(status=Post.Status.PUBLISHED)
 
-
+class Category(MPTTModel):
+    """
+        Модель категорий с вложенностью
+    """
+    title = models.CharField(max_length=255, verbose_name='Название категории')
+    slug = models.SlugField(max_length=255, verbose_name='URL категории', blank=True)
+    description = models.TextField(verbose_name='Описание категории', max_length=300)
+    parent = TreeForeignKey(
+        to='self',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        db_index=True,
+        related_name='children',
+        verbose_name='Родительская категория'
+    )
+    class MPTTMeta:
+        """
+            Сортировка по вложенности
+        """
+        order_insertion_by = ('title',)
+    class Meta:
+        """
+            Название модели в админ панели, таблица с данными
+        """
+        verbose_name = 'Категория'
+        verbose_name_plural = 'Категории'
+        db_table = 'app_categories'
+    def __str__(self):
+        """
+            Возвращение заголовка категории
+        """
+        return self.title
 class Post(models.Model):
     class Status(models.TextChoices):
         DRAFT = 'DF', 'Draft'
@@ -39,6 +71,14 @@ class Post(models.Model):
 
     title = models.CharField(max_length=250)
     slug = models.SlugField(max_length=250, unique_for_date='publish')
+    category = TreeForeignKey(
+        to='Category',
+        on_delete=models.PROTECT,
+        related_name='posts',
+        verbose_name='Категория',
+        default=None,  # или удалите default
+        null=True  # если допустимо отсутствие категории
+    )
     author = models.ForeignKey(
         User,
         on_delete=models.PROTECT,
@@ -78,6 +118,7 @@ class Post(models.Model):
         return self.title
 
 
+
 class Comment(models.Model):
     post = models.ForeignKey(Post, on_delete=models.PROTECT, related_name='comments')
     name = models.CharField(max_length=80)
@@ -95,3 +136,5 @@ class Comment(models.Model):
 
     def __str__(self):
         return f'Comment by {self.name} on {self.post}'
+
+

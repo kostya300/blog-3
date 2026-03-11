@@ -5,7 +5,7 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.postgres.search import SearchVector,SearchQuery,SearchRank
 from .forms import EmailPostForm,CommentForm,SearchForm
-from .models import Post
+from .models import Post,Category
 from django.views.decorators.http import require_POST
 from taggit.models import Tag
 from django.db.models import Count, F
@@ -33,7 +33,34 @@ def post_list(request, tag_slug=None):
     return render(request,
                   'blog/post/list.html',
                   {'posts': posts,
-                   'tag': tag,'popular_posts': popular_posts})
+                  'tag': tag,'popular_posts': popular_posts,'categories': Category.objects.all()})
+
+
+def post_list_by_category(request, category_slug):
+    category = get_object_or_404(Category, slug=category_slug)
+    post_list = Post.published.filter(category=category)
+    paginator = Paginator(post_list, 3)
+    page_number = request.GET.get('page', 1)
+    try:
+        posts = paginator.page(page_number)
+    except PageNotAnInteger:
+        posts = paginator.page(1)
+    except EmptyPage:
+        posts = paginator.page(paginator.num_pages)
+    popular_posts = Post.published.annotate(
+        comment_count=Count('comments')
+    ).order_by('-comment_count')[:5]
+    return render(
+        request,
+        'blog/post/list.html',
+        {
+            'posts': posts,
+            'tag': None,
+            'popular_posts': popular_posts,
+            'categories': Category.objects.all(),
+            'current_category': category,
+        },
+    )
 
 
 def post_search(request):

@@ -6,6 +6,7 @@ app_name = 'blog'
 urlpatterns = [
     # представления поста
     path('', views.post_list, name='post_list'),
+    path('category/<slug:category_slug>/', views.post_list_by_category, name='post_list_by_category'),
     path('search/',
          views.post_search,
          name='post_search'),

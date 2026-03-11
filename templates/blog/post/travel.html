@@ -38,5 +38,11 @@
 				</div>
 			</div>
 		</div>
+
 	{% endfor %}
+	<div class="col">
+				<div class="block-27">
+					{% include 'blog/post/pagination.html' with page=posts %}
+				</div>
+			</div>
 {% endblock %}
