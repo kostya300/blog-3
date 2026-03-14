@@ -1,6 +1,8 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.views.generic import ListView
+from django.views.generic import ListView, DetailView
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.views import redirect_to_login
 from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.postgres.search import SearchVector,SearchQuery,SearchRank
@@ -12,28 +14,81 @@ from django.db.models import Count, F
 from .utils import get_comment_word
 
 
+# Главная страница на основе класса
+class PostListView(ListView):
+    model = Post
+    context_object_name = 'posts'
+    template_name = 'blog/post/list.html'
+    paginate_by = 3
+    def get_queryset(self):
+        queryset = Post.published.all()
+        # Если есть slug тега — фильтруем по тегу
+        tag_slug = self.kwargs.get('tag_slug')
+        if tag_slug:
+            tag = get_object_or_404(Tag, slug=tag_slug)
+            queryset = queryset.filter(tags=tag)
+            self.tag = tag
+        else:
+            self.tag = None
+        return queryset
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Добавляем тег (если есть)
+        context['tag'] = self.tag
+        # Популярные посты (топ‑5 по количеству комментариев)
+        context['popular_posts'] = Post.published.annotate(
+            comment_count=Count('comments')
+        ).order_by('-comment_count')[:5]
+        # Все категории
+        context['categories'] = Category.objects.all()
+        return context
 
-def post_list(request, tag_slug=None):
-    post_list = Post.published.all()
-    tag = None
-    if tag_slug:
-        tag = get_object_or_404(Tag, slug=tag_slug)
-        post_list = post_list.filter(tags=tag)
-    paginator = Paginator(post_list, 3)
-    page_number = request.GET.get('page', 1)
-    try:
-        posts = paginator.page(page_number)
-    except PageNotAnInteger:
-        posts = paginator.page(1)
-    except EmptyPage:
-        posts = paginator.page(paginator.num_pages)
-    popular_posts = Post.published.annotate(
-        comment_count=Count('comments')
-    ).order_by('-comment_count')[:5]
-    return render(request,
-                  'blog/post/list.html',
-                  {'posts': posts,
-                  'tag': tag,'popular_posts': popular_posts,'categories': Category.objects.all()})
+
+class PostDetailView(DetailView):
+    model = Post
+    template_name = 'blog/post/detail.html'
+    context_object_name = 'post'
+
+    def get_object(self, queryset=None):
+        queryset = Post.published.all()
+        return get_object_or_404(
+            queryset,
+            slug=self.kwargs['slug'],
+            publish__year=self.kwargs['year'],
+            publish__month=self.kwargs['month'],
+            publish__day=self.kwargs['day'],
+            status=Post.Status.PUBLISHED,
+        )
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        # Увеличиваем количество просмотров
+        Post.objects.filter(id=self.object.id).update(views=F('views') + 1)
+        context = self.get_context_data(object=self.object)
+        return self.render_to_response(context)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        post = self.object
+        comments = post.comments.filter(active=True)
+        total_comments = comments.count()
+        post_tags_ids = post.tags.values_list('id', flat=True)
+        similar_posts = Post.published.filter(tags__in=post_tags_ids).exclude(id=post.id)
+        similar_posts = similar_posts.annotate(same_tags=Count('tags')).order_by('-same_tags', '-publish')[:4]
+        comment_word = get_comment_word(total_comments)
+
+        context.update(
+            {
+                'comments': comments,
+                'form': CommentForm(),
+                'similar_posts': similar_posts,
+                'total_comments': total_comments,
+                'comment_word': comment_word,
+                'current_user': self.request.user,
+                'categories': Category.objects.all(),
+            }
+        )
+        return context
 
 
 def post_list_by_category(request, category_slug):
@@ -109,41 +164,24 @@ def post_share(request, post_id):
                                                   'form': form,'sent': sent})
 @require_POST
 def post_comment(request, post_id):
-    post = get_object_or_404(Post,
-                             id=post_id,
-                             status=Post.Status.PUBLISHED)
-    comment = None
+    if not request.user.is_authenticated:
+        return redirect_to_login(request.get_full_path())
+    post = get_object_or_404(Post, id=post_id, status=Post.Status.PUBLISHED)
     form = CommentForm(data=request.POST)
     if form.is_valid():
-        # Создать объект класса Comment, не сохраняя его в базе данных
         comment = form.save(commit=False)
-        # Назначить пост комментарию
         comment.post = post
-        # Сохранить комментарий в базе данных
+        comment.user = request.user
         comment.save()
-
-        return redirect('blog:post_detail',
-                    year=post.publish.year,
-                    month=post.publish.month,
-                    day=post.publish.day,
-                    slug=post.slug)
+        return redirect(
+            'blog:post_detail',
+            year=post.publish.year,
+            month=post.publish.month,
+            day=post.publish.day,
+            slug=post.slug,
+        )
     return render(request, 'blog/post/includes/comment_form.html',
                   {'post': post, 'form': form, 'comment': None})
-
-def post_detail(request, year, month, day, slug):
-
-    post = get_object_or_404(Post.published, status=Post.Status.PUBLISHED, slug=slug, publish__year=year, publish__month=month,
-                             publish__day=day)
-    comments = post.comments.filter(active=True)
-    total_comments = comments.count()
-    form = CommentForm()
-    post_tags_ids = post.tags.values_list('id', flat=True)
-    similar_posts = Post.published.filter(tags__in=post_tags_ids) \
-        .exclude(id=post.id)
-    similar_posts = similar_posts.annotate(same_tags=Count('tags')).order_by('-same_tags','-publish')[:4]
-    Post.objects.filter(id=post.id).update(views=F('views') + 1)
-    comment_word = get_comment_word(total_comments)
-    return render(request, 'blog/post/detail.html', {'post': post,'comments': comments, 'form': form, 'similar_posts': similar_posts,'total_comments': total_comments, 'comment_word': comment_word,'current_user': request.user,})
 
 
 def about(request):

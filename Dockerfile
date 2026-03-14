@@ -1,12 +1,17 @@
 FROM python:3.11-slim
 
-
 WORKDIR /app
 
+# Системные зависимости для psycopg, Pillow и др.
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libpq-dev \
+    libjpeg-dev \
+    zlib1g-dev \
+ && rm -rf /var/lib/apt/lists/*
 
-# Обновите pip до актуальной версии
+# Обновляем pip
 RUN pip install --upgrade pip
-
 
 # Копируем requirements.txt
 COPY requirements.txt .
@@ -14,28 +19,21 @@ COPY requirements.txt .
 # Устанавливаем зависимости
 RUN pip install --no-cache-dir --retries 5 -r requirements.txt
 
-
+# Копируем всё приложение
 COPY . .
 
-# Если есть .dockerignore — он исключит ненужные файлы (__pycache__, .git, etc.)
-
-
-# 7. Создание непривилегированного пользователя (безопасность)
+# Создание непривилегированного пользователя
 RUN adduser --disabled-password --gecos '' django-user
 USER django-user
 
-
-# 8. Настройка окружения (переменные, которые можно переопределить при запуске)
-ENV PYTHONDUNREDIRECTIO=1
+# Базовые переменные окружения (можно переопределить при запуске)
 ENV PYTHONUNBUFFERED=1
-ENV DJANGO_SETTINGS_MODULE=Course_FirstProject.settings.production
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV DJANGO_SETTINGS_MODULE=Course_FirstProject.settings
 
-
-# 9. Открытие порта (обычно 8000 для Gunicorn)
+# Открываем порт 8000
 EXPOSE 8000
 
-# Примечание: реальный проброс портов делается через docker run -p 8000:8000
-
-
-# 10. Команда запуска (Gunicorn + настройки)
-CMD ["gunicorn", "Course_FirstProject.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "4"]
+# Команда запуска (для простого деплоя можно использовать runserver)
+# Для продакшена лучше установить gunicorn в requirements.txt
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]

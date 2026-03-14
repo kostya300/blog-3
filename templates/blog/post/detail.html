@@ -1,4 +1,3 @@
-
 {% extends 'blog/base.html' %}
 
 {% load static %}
@@ -36,19 +35,22 @@
 				{% with comments.count as total_comments %}
 					<h3 class="mb-5 font-weight-bold">{{ comment_word }}</h3>
 				{% endwith %}
-{#				<h2>Similar posts</h2>#}
-{#				{% for post in similar_posts %}#}
-{#					<p>#}
-{#						<a href="{{ post.get_absolute_url }}">{{ post.title }}</a>#}
-{#					</p>#}
-{#				{% empty %}#}
-{#					<p>There are no similar posts yet.</p>#}
-{#				{% endfor %}#}
-				{% for comment in comments %}
-					<ul class="comment-list">
+				{#				<h2>Similar posts</h2>#}
+				{#				{% for post in similar_posts %}#}
+				{#					<p>#}
+				{#						<a href="{{ post.get_absolute_url }}">{{ post.title }}</a>#}
+				{#					</p>#}
+				{#				{% empty %}#}
+				{#					<p>There are no similar posts yet.</p>#}
+				{#				{% endfor %}#}
+				<ul class="comment-list">
+					{% for comment in comments %}
+
 						<li class="comment">
 							<div class="vcard bio">
-								<img src="{{ current_user.profile.avatar.url }}" alt="Image placeholder">
+								{% if comment.user and comment.user.profile.avatar %}
+									<img src="{{ comment.user.profile.avatar.url }}" alt="{{ comment.user.username }}">
+								{% endif %}
 							</div>
 							<div class="comment-body">
 								<h3>{{ comment.name }}</h3>
@@ -57,11 +59,18 @@
 								<p><a href="#" class="reply">Ответить</a></p>
 							</div>
 						</li>
-					</ul>
-				{% empty %}
-					<p>Нет комментариев.</p>
-				{% endfor %}
-				{% include 'blog/post/includes/comment_form.html' %}
+
+					{% empty %}
+						<p>Нет комментариев.</p>
+					{% endfor %}
+				</ul>
+				{% if request.user.is_authenticated %}
+					{% include 'blog/post/includes/comment_form.html' %}
+				{% else %}
+					<p>
+						<a href="{% url 'accounts:login' %}">Войдите</a>, чтобы оставить комментарий.
+					</p>
+				{% endif %}
 			</div>
 		</div><!-- END-->
 	</div>

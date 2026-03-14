@@ -15,7 +15,7 @@
 				<li>
 					<a href="{% url 'blog:post_list_by_category' category.slug %}">
 						{{ category.title }}
-						<span>({{ category.posts.count }})</span>
+						<span>{{ category.posts.count }}</span>
 					</a>
 				</li>
 			{% endfor %}

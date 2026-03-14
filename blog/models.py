@@ -9,6 +9,8 @@ from pathlib import Path
 from django.urls import reverse
 from taggit.managers import TaggableManager
 from mptt.models import MPTTModel, TreeForeignKey
+from services .utils import unique_slugify
+
 def validate_image_file(file):
     # Проверка расширения
     if not file.name.lower().endswith(('.jpg', '.jpeg', '.png')):
@@ -26,10 +28,10 @@ def validate_image_file(file):
         raise ValidationError('не является корректным изображением или повреждён')
 
 
-
 class PublishedManager(models.Manager):
     def get_queryset(self):
         return super().get_queryset().filter(status=Post.Status.PUBLISHED)
+
 
 class Category(MPTTModel):
     """
@@ -47,11 +49,13 @@ class Category(MPTTModel):
         related_name='children',
         verbose_name='Родительская категория'
     )
+
     class MPTTMeta:
         """
             Сортировка по вложенности
         """
         order_insertion_by = ('title',)
+
     class Meta:
         """
             Название модели в админ панели, таблица с данными
@@ -59,18 +63,30 @@ class Category(MPTTModel):
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
         db_table = 'app_categories'
+
     def __str__(self):
         """
             Возвращение заголовка категории
         """
         return self.title
+
+class PostManager(models.Manager):
+    """
+        Кастомный менеджер для модели постов
+    """
+
+    def get_queryset(self):
+        """
+        Список постов (SQL запрос с фильтрацией по статусу опубликованно)
+        """
+        return super().get_queryset().filter(status='published')
 class Post(models.Model):
     class Status(models.TextChoices):
         DRAFT = 'DF', 'Draft'
         PUBLISHED = 'PB', 'Published'
 
     title = models.CharField(max_length=250)
-    slug = models.SlugField(max_length=250, unique_for_date='publish')
+    slug = models.SlugField(verbose_name='URL', max_length=255, blank=True)
     category = TreeForeignKey(
         to='Category',
         on_delete=models.PROTECT,
@@ -102,26 +118,38 @@ class Post(models.Model):
         validators=[validate_image_file]
     )
     objects = models.Manager()
+    custom = PostManager()
     published = PublishedManager()
     tags = TaggableManager()
 
     class Meta:
-        ordering = ['-publish']
+        db_table = 'blog_post'
+        ordering = ['-publish', '-created']
         indexes = [
-            models.Index(fields=['-publish']),
+            models.Index(fields=['-publish', '-created', 'status'], ),
         ]
+        verbose_name = 'Статья'
+        verbose_name_plural = 'Статьи'
 
     def get_absolute_url(self):
+        """
+                Получаем прямую ссылку на статью
+                """
         return reverse('blog:post_detail', args=[self.publish.year, self.publish.month, self.publish.day, self.slug])
-
+    def save(self, *args, **kwargs):
+        """
+            При сохранении генерируем слаг и проверяем на уникальность
+        """
+        self.slug = unique_slugify(self, self.title,self.slug)
+        super().save(*args, **kwargs)
     def __str__(self):
         return self.title
-
 
 
 class Comment(models.Model):
     post = models.ForeignKey(Post, on_delete=models.PROTECT, related_name='comments')
     name = models.CharField(max_length=80)
+    user = models.ForeignKey(User, on_delete=models.PROTECT, null=True, blank=True, related_name='comments')
     email = models.EmailField()
     body = models.TextField()
     created = models.DateTimeField(auto_now_add=True)
@@ -136,5 +164,3 @@ class Comment(models.Model):
 
     def __str__(self):
         return f'Comment by {self.name} on {self.post}'
-
-
