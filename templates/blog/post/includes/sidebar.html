@@ -1,3 +1,6 @@
+{% load static %}
+{% load cache %}
+{% cache 300 "sidebar" %}
 <div class="col-xl-4 sidebar ftco-animate bg-light pt-5">
 	<div class="sidebar-box pt-md-4">
 		<form action="{% url 'blog:post_search' %}" method="get" class="search-form">
@@ -21,15 +24,15 @@
 			{% endfor %}
 		</ul>
 	</div>
+{% cache 300 "popular_posts_block" %}
 
 	<div class="sidebar-box ftco-animate">
 		<h3 class="sidebar-heading">Популярные статьи</h3>
 		{% for post in popular_posts %}
 			<div class="block-21 mb-4 d-flex">
-				<a class="blog-img mr-4" style="background-image: url(images/image_1.jpg);"></a>
+				<a class="blog-img mr-4" style="background-image: url({% if post.image.url %}{{ post.image.url }}{% else %}{% static 'images/image_1.jpg' %}{% endif %});"></a>
 				<div class="text">
-					<h3 class="heading"><a href="{{ post.get_absolute_url }}">{{ post.title }}</a>
-					</h3>
+					<h3 class="heading"><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></h3>
 					<div class="meta">
 						<div><a href="#"><span class="icon-calendar"></span>{{ post.publish|date:"F d, Y" }}</a></div>
 						<div><a href="#"><span class="icon-person"></span>{{ post.author }}</a></div>
@@ -37,8 +40,34 @@
 					</div>
 				</div>
 			</div>
+		{% empty %}
+			<p>Пока нет данных.</p>
 		{% endfor %}
 	</div>
+	{% endcache %}
+
+	{% cache 300 "most_viewed_posts_block" %}
+	<div class="sidebar-box ftco-animate">
+		<h3 class="sidebar-heading">Часто просматриваемые</h3>
+		{% for post in most_viewed_posts %}
+			<div class="block-21 mb-4 d-flex">
+				<a class="blog-img mr-4"
+   style="background-image: url({% if post.image %}{{ post.image.url }}{% else %}{% static 'images/image_1.jpg' %}{% endif %});">
+</a>
+				<div class="text">
+					<h3 class="heading"><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></h3>
+					<div class="meta">
+						<div><a href="#"><span class="icon-calendar"></span>{{ post.publish|date:"F d, Y" }}</a></div>
+						<div><a href="#"><span class="icon-person"></span>{{ post.author }}</a></div>
+						<div><a href="#"><span class="icon-chat"></span> {{ post.comments.count }}</a></div>
+					</div>
+				</div>
+			</div>
+		{% empty %}
+			<p>Пока нет данных.</p>
+		{% endfor %}
+	</div>
+	{% endcache %}
 
 	{#	<div class="sidebar-box ftco-animate">#}
 	{#		<h3 class="sidebar-heading">Tag Cloud</h3>#}
@@ -85,7 +114,7 @@
 			<h3 class="sidebar-heading">Последние статьи</h3>
 			{% for post in popular_posts %}
 				<div class="block-21 mb-4 d-flex">
-					<a class="blog-img mr-4" style="background-image: url(images/image_1.jpg);"></a>
+					<a class="blog-img mr-4" style="background-image: url({% if post.image %}{{ post.image.url }}{% else %}{% static 'images/image_1.jpg' %}{% endif %});"></a>
 					<div class="text">
 						<h3 class="heading"><a href="{{ post.get_absolute_url }}">{{ post.title }}</a>
 						</h3>
@@ -101,3 +130,4 @@
 		</div>
 	</div>
 </div>
+{% endcache %}

@@ -40,6 +40,7 @@ class PostListView(ListView):
             comment_count=Count('comments')
         ).order_by('-comment_count')[:5]
         # Все категории
+        context['most_viewed_posts'] = Post.published.order_by('-views')[:5]
         context['categories'] = Category.objects.all()
         return context
 
@@ -86,6 +87,8 @@ class PostDetailView(DetailView):
                 'comment_word': comment_word,
                 'current_user': self.request.user,
                 'categories': Category.objects.all(),
+                'popular_posts': Post.published.annotate(comment_count=Count('comments')).order_by('-comment_count')[:5],
+                'most_viewed_posts': Post.published.order_by('-views')[:5],
             }
         )
         return context
@@ -105,6 +108,7 @@ def post_list_by_category(request, category_slug):
     popular_posts = Post.published.annotate(
         comment_count=Count('comments')
     ).order_by('-comment_count')[:5]
+    most_viewed_posts = Post.published.order_by('-views')[:5]
     return render(
         request,
         'blog/post/list.html',
@@ -112,6 +116,7 @@ def post_list_by_category(request, category_slug):
             'posts': posts,
             'tag': None,
             'popular_posts': popular_posts,
+            'most_viewed_posts': most_viewed_posts,
             'categories': Category.objects.all(),
             'current_category': category,
         },

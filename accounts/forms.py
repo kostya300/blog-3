@@ -130,12 +130,66 @@ class SignUpForm(UserCreationForm):
             user.save()
         return user
 
-class UpdateUserForm(forms.ModelForm):
-    class Meta:
-        model = User
-        fields = ['username', 'email']
+class ProfileUpdateForm(forms.ModelForm):
+    username = forms.CharField(
+        widget=forms.TextInput(attrs={'class': 'form-control underline-input'}),
+        label='Имя пользователя'
+    )
+    email = forms.EmailField(
+        widget=forms.EmailInput(attrs={'class': 'form-control underline-input'}),
+        label='Email'
+    )
+    phone_number = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control underline-input', 'placeholder': '+7 (999) 123-45-67'}),
+        label='Телефон'
+    )
+    bio = forms.CharField(
+        widget=forms.Textarea(attrs={'rows': 5, 'class': 'form-control', 'placeholder': 'О себе'}),
+        required=False,
+        label='Биография'
+    )
+    profession = forms.CharField(
+        widget=forms.TextInput(attrs={'class': 'form-control underline-input', 'placeholder': 'Профессия'}),
+        required=False,
+        label='Профессия'
+    )
+    avatar = forms.ImageField(
+        widget=forms.FileInput(attrs={'class': 'form-control underline-input'}),
+        required=False,
+        label='Аватар'
+    )
 
-class UpdateProfileForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['phone_number', 'bio', 'profession', 'avatar']
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        if self.user:
+            self.fields['username'].initial = self.user.username
+            self.fields['email'].initial = self.user.email
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if email and User.objects.filter(email=email).exclude(pk=self.user.pk).exists():
+            raise forms.ValidationError('Email должен быть уникальным')
+        return email
+
+    def save(self, commit=True):
+        profile = super().save(commit=False)
+        if self.user:
+            self.user.username = self.cleaned_data['username']
+            self.user.email = self.cleaned_data['email']
+            if commit:
+                self.user.save()
+        if commit:
+            profile.save()
+        return profile
+
+
+class UserUpdateForm(forms.ModelForm):
     phone_number = forms.CharField(
         required=False,
         widget=forms.TextInput(attrs={'class': 'form-control underline-input', 'placeholder': '+7 (999) 123-45-67'}),

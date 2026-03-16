@@ -1,5 +1,7 @@
 from django import forms
-from .models import Comment
+from .models import Comment, Post
+
+
 class EmailPostForm(forms.Form):
     name = forms.CharField(
         max_length=30,
@@ -72,3 +74,17 @@ class CommentForm(forms.ModelForm):
             'email': 'Email',
             'body': 'Сообщение'
         }
+class PostCreateForm(forms.ModelForm):
+    class Meta:
+        model = Post
+        fields = ('name','user','email','body','created','updated','active')
+    def __init__(self, *args, **kwargs):
+        """
+        Обновление стилей формы под Bootstrap
+        """
+        super().__init__(*args, **kwargs)
+        for field in  self.fields:
+            self.fields[field].widget.attrs.update({
+                'class': 'form-control',
+                'autocomplete': 'off',
+            })

@@ -1,4 +1,5 @@
 {% extends "blog/base.html" %}
+{% load cache %}
 {% load static %}
 {% block css %}
 	<link rel="stylesheet" href="{% static 'css/open-iconic-bootstrap.min.css' %}">
@@ -24,6 +25,7 @@
 
 	<div class="col-xl-8 py-5 px-md-5">
 		<div class="row pt-md-4">
+		{% cache 300 "general_list" request.get_full_path %}
 			{% for post in posts %}
 				<div class="col-md-12">
 					<div class="blog-entry ftco-animate d-md-flex">
@@ -54,7 +56,9 @@
 					</div>
 				</div>
 			{% endfor %}
+		{% endcache %}
 		</div><!-- END-->
+
 		<div class="row">
 			<div class="col">
 				<div class="block-27">

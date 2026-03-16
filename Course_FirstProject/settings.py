@@ -11,9 +11,10 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 import os
 from pathlib import Path
-
+import mimetypes
 from drf_spectacular.settings import SPECTACULAR_DEFAULTS
 
+mimetypes.add_type("application/javascript", ".js", True)
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -52,6 +53,7 @@ INSTALLED_APPS = [
     'drf_spectacular',
     'mptt',
     'django_mptt_admin',
+    'debug_toolbar',
 ]
 
 SITE_ID = 1
@@ -63,10 +65,24 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
 ROOT_URLCONF = "Course_FirstProject.urls"
+INTERNAL_IPS = [
+    '127.0.0.1',
+]
+CACHES = {
+    'default': {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
 
+        },
+        "KEY_PREFIX": "blog33",
+    }
+}
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -164,6 +180,15 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+
+def show_toolbar(request):
+    return True
+
+
+DEBUG_TOOLBAR_CONFIG = {
+    "SHOW_TOOLBAR_CALLBACK": show_toolbar,
+}
+
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
 
@@ -183,7 +208,7 @@ SOCIAL_AUTH_GITHUB_KEY = 'Ov23liGhCo13unikBt9H'
 SOCIAL_AUTH_GITHUB_SECRET = '421645f129830499b6a4209ca797c5e8aabf6be7'
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '48328434690-kcqd4cemubfamc78t3363uh0q755skr7.apps.googleusercontent.com'
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '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'
-STATIC_URL = '/static/'
+STATIC_URL = 'static/'
 
 STATICFILES_DIRS = [BASE_DIR / 'static']
 LOGIN_URL = '/accounts/login/'

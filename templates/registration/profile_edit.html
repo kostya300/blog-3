@@ -1,0 +1,138 @@
+{% extends 'blog/base.html' %}
+{% load static %}
+
+{% block content %}
+	<style>
+		#id_avatar {
+  display: none;
+}
+
+.custom-file-label {
+  display: inline-block;
+  padding: 0.375rem 0.75rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #212529;
+  background-color: #fff;
+  border: 1px solid #ced4da;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.custom-file-label:hover {
+  border-color: #80bdff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+	</style>
+<div class="card mb-3 border-0 nth-shadow">
+  <div class="card-body">
+    <div class="card-title nth-card-title">
+      <h4>Изменение профиля</h4>
+    </div>
+
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      <!-- Сообщения -->
+      {% if messages %}
+        <div class="alert alert-success">
+          {% for message in messages %}
+            {{ message }}
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <!-- Ошибки формы -->
+      {% if form.errors %}
+        <div class="alert alert-danger">
+          Пожалуйста, исправьте ошибки в форме.
+        </div>
+      {% endif %}
+
+      <div class="row">
+        <!-- Блок аватара -->
+        <div class="col-md-4">
+          <div class="profile-img text-center">
+            <img src="{{ profile.avatar.url }}" alt="Аватар" class="img-thumbnail mb-2" width="150">
+            <div class="file-container">
+              <label for="id_avatar" class="btn btn-primary">Загрузить аватар</label>
+              {{ form.avatar }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Основная информация -->
+        <div class="col-md-6">
+          <div class="form-group mb-3">
+            <label for="{{ form.username.id_for_label }}" class="form-label">Имя пользователя</label>
+            {{ form.username }}
+            {% if form.username.errors %}
+              <div class="text-danger">{{ form.username.errors }}</div>
+            {% endif %}
+          </div>
+          <div class="form-group mb-3">
+            <label for="{{ form.email.id_for_label }}" class="form-label">Email</label>
+            {{ form.email }}
+            {% if form.email.errors %}
+              <div class="text-danger">{{ form.email.errors }}</div>
+            {% endif %}
+          </div>
+          <div class="form-group mb-3">
+            <label for="{{ form.phone_number.id_for_label }}" class="form-label">Телефон</label>
+            {{ form.phone_number }}
+            {% if form.phone_number.errors %}
+              <div class="text-danger">{{ form.phone_number.errors }}</div>
+            {% endif %}
+          </div>
+          <div class="form-group mb-3">
+            <label for="{{ form.profession.id_for_label }}" class="form-label">Профессия</label>
+            {{ form.profession }}
+            {% if form.profession.errors %}
+              <div class="text-danger">{{ form.profession.errors }}</div>
+            {% endif %}
+          </div>
+          <div class="form-group mb-3">
+            <label for="{{ form.bio.id_for_label }}" class="form-label">О себе</label>
+            {{ form.bio }}
+            {% if form.bio.errors %}
+              <div class="text-danger">{{ form.bio.errors }}</div>
+            {% endif %}
+          </div>
+          <div class="form-group mb-3">
+            <label for="{{ form.location.id_for_label }}" class="form-label">Местоположение</label>
+            {{ form.location }}
+            {% if form.location.errors %}
+              <div class="text-danger">{{ form.location.errors }}</div>
+            {% endif %}
+          </div>
+          <div class="form-group mb-3">
+            <label for="{{ form.birth_date.id_for_label }}" class="form-label">Дата рождения</label>
+            {{ form.birth_date }}
+            {% if form.birth_date.errors %}
+              <div class="text-danger">{{ form.birth_date.errors }}</div>
+            {% endif %}
+          </div>
+          <div class="form-group mb-3">
+            <label for="{{ form.website.id_for_label }}" class="form-label">Веб‑сайт</label>
+            {{ form.website }}
+            {% if form.website.errors %}
+              <div class="text-danger">{{ form.website.errors }}</div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Кнопки -->
+      <div class="mt-4">
+        <button type="submit" class="btn btn-primary me-2">Сохранить изменения</button>
+        <a href="{% url 'accounts:profile_detail' user.profile.slug %}" class="btn btn-secondary">
+          Отмена
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+

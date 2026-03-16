@@ -47,7 +47,7 @@
 					<form action="{% url 'logout' %}" method="post">
 						{% csrf_token %}
 						<a href="#" onclick="parentNode.submit();">Выйти</a>
-						<li><a href="{% url 'accounts:users-profile' %}">Личный</a></li>
+						<li><a href="{% url 'accounts:profile_detail' slug=user.profile.slug %}">Личный</a></li>
 
 					</form>
 				{% else %}
