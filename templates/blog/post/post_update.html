@@ -1,0 +1,110 @@
+{% extends 'blog/base.html' %}
+
+{% block content %}
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Редактирование статьи</h5>
+        </div>
+        <div class="card-body">
+            <h6 class="text-muted mb-4">«{{ post.title }}»</h6>
+
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <!-- Заголовок -->
+                <div class="mb-3">
+                    <label for="{{ form.title.id_for_label }}" class="form-label">Заголовок</label>
+                    {{ form.title }}
+                    {% if form.title.errors %}
+                        <div class="text-danger small">{{ form.title.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Slug (опционально, можно скрыть или сделать readonly) -->
+                <div class="mb-3">
+                    <label for="{{ form.slug.id_for_label }}" class="form-label">URL (slug)</label>
+                    {{ form.slug }}
+                    <div class="form-text text-muted">
+                        Оставьте пустым — будет сгенерирован автоматически.
+                    </div>
+                    {% if form.slug.errors %}
+                        <div class="text-danger small">{{ form.slug.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Категория -->
+                <div class="mb-3">
+                    <label for="{{ form.category.id_for_label }}" class="form-label">Категория</label>
+                    {{ form.category }}
+                    {% if form.category.errors %}
+                        <div class="text-danger small">{{ form.category.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Автор -->
+                <div class="mb-3">
+                    <label for="{{ form.author.id_for_label }}" class="form-label">Автор</label>
+                    {{ form.author }}
+                    {% if form.author.errors %}
+                        <div class="text-danger small">{{ form.author.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Текст статьи -->
+                <div class="mb-3">
+                    <label for="{{ form.body.id_for_label }}" class="form-label">Текст статьи</label>
+                    {{ form.body }}
+                    {% if form.body.errors %}
+                        <div class="text-danger small">{{ form.body.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Статус -->
+                <div class="mb-3">
+                    <label for="{{ form.status.id_for_label }}" class="form-label">Статус</label>
+                    {{ form.status }}
+                    {% if form.status.errors %}
+                        <div class="text-danger small">{{ form.status.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Изображение -->
+                <div class="mb-3">
+                    <label for="{{ form.image.id_for_label }}" class="form-label">Изображение</label>
+                    {{ form.image }}
+                    {% if form.image.errors %}
+                        <div class="text-danger small">{{ form.image.errors }}</div>
+                    {% endif %}
+                    {% if post.image %}
+                        <div class="mt-2">
+                            <img src="{{ post.image.url }}" alt="Current image" class="img-thumbnail" style="max-height: 150px;">
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Теги -->
+                <div class="mb-3">
+                    <label for="{{ form.tags.id_for_label }}" class="form-label">Теги</label>
+                    {{ form.tags }}
+                    <div class="form-text text-muted">
+                        Введите теги через запятую: например, <code>django, python, web</code>
+                    </div>
+                    {% if form.tags.errors %}
+                        <div class="text-danger small">{{ form.tags.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Кнопки -->
+                <div class="d-grid gap-2 d-md-flex mt-4">
+                    <button type="submit" class="btn btn-success btn-lg px-4">
+                        Сохранить изменения
+                    </button>
+                    <a href="{% url 'blog:post_detail' post.publish.year post.publish.month post.publish.day post.slug %}"
+                       class="btn btn-outline-secondary btn-lg px-4">
+                        Отмена
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

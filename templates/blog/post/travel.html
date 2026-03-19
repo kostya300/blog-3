@@ -1,9 +1,25 @@
 {% extends 'blog/base.html' %}
 {% load static %}
 {% block content %}
+	<div class="sticky-button" style=" position: fixed;
+  bottom: 20px; /* отступ от низа окна */
+  right: 420px;  /* отступ от правого края окна */
+  z-index: 1000; /* чтобы кнопка была поверх других элементов */
+  padding: 12px 24px;
+
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;">
+		{% if request.user.is_authenticated %}
+			<a href="{% url 'blog:post_create' %}" class="btn btn-primary">Добавить пост</a>
+		{% endif %}
+	</div>
 	{% for post in posts %}
 		<div class="col-md-12">
+
 			<div class="blog-entry-2 ftco-animate">
+
 				{% if post.image %}
 					<a href="{{ post.get_absolute_url }}" class="img"
 					   style="background-image: url(
@@ -32,7 +48,7 @@
 						</div>
 						<div class="half">
 							<p><a href="{{ post.get_absolute_url }}" class="btn btn-primary p-3 px-xl-4 py-xl-3">Продолжать
- Чтение</a></p>
+								Чтение</a></p>
 						</div>
 					</div>
 				</div>
@@ -41,8 +57,8 @@
 
 	{% endfor %}
 	<div class="col">
-				<div class="block-27">
-					{% include 'blog/post/pagination.html' with page=posts %}
-				</div>
-			</div>
+		<div class="block-27">
+			{% include 'blog/post/pagination.html' with page=posts %}
+		</div>
+	</div>
 {% endblock %}

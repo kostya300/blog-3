@@ -13,6 +13,7 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return self.user.username
+
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     slug = models.SlugField(verbose_name='URL', max_length=255, blank=True,unique=True)
@@ -33,6 +34,8 @@ class Profile(models.Model):
             FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png']),
         ]
     )
+
+
     class Meta:
         ordering = ('user',)
         verbose_name = 'Профиль'

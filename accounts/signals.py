@@ -9,3 +9,7 @@ def create_profile(sender,instance,created ,**kwargs):
         Profile.objects.create(user=instance,
                                phone_number=None)
         Token.objects.create(user=instance)
+@receiver(post_save, sender=User)
+def save_user_profile(sender, instance, **kwargs):
+    """Сохраняет профиль пользователя при сохранении аккаунта"""
+    instance.profile.save()

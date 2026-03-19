@@ -34,14 +34,10 @@ class PublishedManager(models.Manager):
 
 
 class Category(MPTTModel):
-    """
-        Модель категорий с вложенностью
-    """
     title = models.CharField(max_length=255, verbose_name='Название категории')
-    slug = models.SlugField(max_length=255, verbose_name='URL категории', blank=True)
-    description = models.TextField(verbose_name='Описание категории', max_length=300)
+    slug = models.SlugField(max_length=255, blank=True, unique=True)
     parent = TreeForeignKey(
-        to='self',
+        'self',
         on_delete=models.CASCADE,
         null=True,
         blank=True,
@@ -51,23 +47,14 @@ class Category(MPTTModel):
     )
 
     class MPTTMeta:
-        """
-            Сортировка по вложенности
-        """
-        order_insertion_by = ('title',)
+        order_insertion_by = ['title']
 
     class Meta:
-        """
-            Название модели в админ панели, таблица с данными
-        """
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
         db_table = 'app_categories'
 
     def __str__(self):
-        """
-            Возвращение заголовка категории
-        """
         return self.title
 
 class PostManager(models.Manager):
@@ -80,6 +67,8 @@ class PostManager(models.Manager):
         Список постов (SQL запрос с фильтрацией по статусу опубликованно)
         """
         return super().get_queryset().filter(status='published')
+
+
 class Post(models.Model):
     class Status(models.TextChoices):
         DRAFT = 'DF', 'Draft'
@@ -117,6 +106,15 @@ class Post(models.Model):
         help_text='Загрузите изображение (максимум 5 МБ, поддерживаемые форматы: JPG, PNG, WEBP)',
         validators=[validate_image_file]
     )
+    fixed = models.BooleanField(default=False, verbose_name='Исправлено')
+    updater = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='updated_posts',
+        verbose_name='Кто обновил'
+    )
     objects = models.Manager()
     custom = PostManager()
     published = PublishedManager()
@@ -140,17 +138,26 @@ class Post(models.Model):
         """
             При сохранении генерируем слаг и проверяем на уникальность
         """
-        self.slug = unique_slugify(self, self.title,self.slug)
+        if not self.slug:
+            self.slug = unique_slugify(self, self.title)
         super().save(*args, **kwargs)
     def __str__(self):
         return self.title
 
 
 class Comment(models.Model):
-    post = models.ForeignKey(Post, on_delete=models.PROTECT, related_name='comments')
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments')
+    parent = models.ForeignKey(
+        'self',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='children',
+        verbose_name='Родительский комментарий'
+    )
     name = models.CharField(max_length=80)
-    user = models.ForeignKey(User, on_delete=models.PROTECT, null=True, blank=True, related_name='comments')
-    email = models.EmailField()
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='comments')
+    email = models.EmailField(blank=True, null=True)
     body = models.TextField()
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -160,7 +167,15 @@ class Comment(models.Model):
         ordering = ['created']
         indexes = [
             models.Index(fields=['created']),
+            models.Index(fields=['parent']),  # важно для производительности
         ]
-
+    def get_children(self):
+        """Возвращает все дочерние комментарии"""
+        return self.children.filter(active=True)
+    def is_parent(self):
+        """Проверяет, есть ли у комментария ответы"""
+        return self.children.exists()
     def __str__(self):
-        return f'Comment by {self.name} on {self.post}'
+        if self.parent:
+            return f'Ответ от {self.name} к комментарию {self.parent.id}'
+        return f'Комментарий от {self.name} на {self.body}'

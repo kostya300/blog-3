@@ -1,17 +1,19 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.views.generic import ListView, DetailView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import redirect_to_login
 from django.core.mail import send_mail
 from django.conf import settings
-from django.contrib.postgres.search import SearchVector,SearchQuery,SearchRank
-from .forms import EmailPostForm,CommentForm,SearchForm
-from .models import Post,Category
+from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
+from .forms import EmailPostForm, CommentForm, SearchForm, PostCreateForm, PostUpdateForm, CommentCreateForm
+from .models import Post, Category, Comment
 from django.views.decorators.http import require_POST
 from taggit.models import Tag
 from django.db.models import Count, F
 from .utils import get_comment_word
+from django.http import JsonResponse
 
 
 # Главная страница на основе класса
@@ -20,9 +22,9 @@ class PostListView(ListView):
     context_object_name = 'posts'
     template_name = 'blog/post/list.html'
     paginate_by = 3
+
     def get_queryset(self):
         queryset = Post.published.all()
-        # Если есть slug тега — фильтруем по тегу
         tag_slug = self.kwargs.get('tag_slug')
         if tag_slug:
             tag = get_object_or_404(Tag, slug=tag_slug)
@@ -31,18 +33,52 @@ class PostListView(ListView):
         else:
             self.tag = None
         return queryset
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # Добавляем тег (если есть)
         context['tag'] = self.tag
-        # Популярные посты (топ‑5 по количеству комментариев)
         context['popular_posts'] = Post.published.annotate(
             comment_count=Count('comments')
         ).order_by('-comment_count')[:5]
-        # Все категории
         context['most_viewed_posts'] = Post.published.order_by('-views')[:5]
         context['categories'] = Category.objects.all()
         return context
+
+
+class PostUpdateView(UpdateView):
+    """
+    Представление: обновления материала на сайте
+    """
+    model = Post
+    template_name = 'blog/post/post_update.html'
+    context_object_name = 'post'
+    form_class = PostUpdateForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = f'Обновление статьи: {self.object.title}'
+        return context
+
+    def form_valid(self, form):
+        return super().form_valid(form)
+
+
+class PostCreateView(CreateView):
+    """
+    Представление: создание материалов на сайте
+    """
+    model = Post
+    template_name = 'blog/post/post_create.html'
+    form_class = PostCreateForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Добавление статьи на сайт'
+        return context
+
+    def form_invalid(self, form):
+        form.instance.author = self.request.user
+        return super().form_invalid(form)
 
 
 class PostDetailView(DetailView):
@@ -63,7 +99,6 @@ class PostDetailView(DetailView):
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
-        # Увеличиваем количество просмотров
         Post.objects.filter(id=self.object.id).update(views=F('views') + 1)
         context = self.get_context_data(object=self.object)
         return self.render_to_response(context)
@@ -71,26 +106,28 @@ class PostDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         post = self.object
-        comments = post.comments.filter(active=True)
-        total_comments = comments.count()
+
+        root_comments = post.comments.filter(active=True, parent__isnull=True)
+        for comment in root_comments:
+            comment.children_comments = comment.children.filter(active=True)
+
+        total_comments = post.comments.filter(active=True).count()
         post_tags_ids = post.tags.values_list('id', flat=True)
         similar_posts = Post.published.filter(tags__in=post_tags_ids).exclude(id=post.id)
         similar_posts = similar_posts.annotate(same_tags=Count('tags')).order_by('-same_tags', '-publish')[:4]
         comment_word = get_comment_word(total_comments)
 
-        context.update(
-            {
-                'comments': comments,
-                'form': CommentForm(),
-                'similar_posts': similar_posts,
-                'total_comments': total_comments,
-                'comment_word': comment_word,
-                'current_user': self.request.user,
-                'categories': Category.objects.all(),
-                'popular_posts': Post.published.annotate(comment_count=Count('comments')).order_by('-comment_count')[:5],
-                'most_viewed_posts': Post.published.order_by('-views')[:5],
-            }
-        )
+        context.update({
+            'comments': root_comments,
+            'form': CommentForm(),
+            'similar_posts': similar_posts,
+            'total_comments': total_comments,
+            'comment_word': comment_word,
+            'current_user': self.request.user,
+            'categories': Category.objects.all(),
+            'popular_posts': Post.published.annotate(comment_count=Count('comments')).order_by('-comment_count')[:5],
+            'most_viewed_posts': Post.published.order_by('-views')[:5],
+        })
         return context
 
 
@@ -105,10 +142,10 @@ def post_list_by_category(request, category_slug):
         posts = paginator.page(1)
     except EmptyPage:
         posts = paginator.page(paginator.num_pages)
-    popular_posts = Post.published.annotate(
-        comment_count=Count('comments')
-    ).order_by('-comment_count')[:5]
+
+    popular_posts = Post.published.annotate(comment_count=Count('comments')).order_by('-comment_count')[:5]
     most_viewed_posts = Post.published.order_by('-views')[:5]
+
     return render(
         request,
         'blog/post/list.html',
@@ -134,39 +171,48 @@ def post_search(request):
             search_vector = SearchVector('title', 'body')
             search_query = SearchQuery(query)
             results = Post.published.annotate(
-                search = search_vector,
+                search=search_vector,
                 rank=SearchRank(search_vector, search_query)
             ).filter(search=search_query).order_by('-rank')
 
-    return render(request,'blog/post/search.html',
-                  {'form': form,
-                   'query': query,
-                   'results': results})
+    return render(request, 'blog/post/search.html', {
+        'form': form,
+        'query': query,
+        'results': results
+    })
+
 
 def post_share(request, post_id):
-    # Извлечь пост по идентификатору id
-    post = get_object_or_404(Post,
-                             id=post_id,
-                             status=Post.Status.PUBLISHED)
+    post = get_object_or_404(Post, id=post_id, status=Post.Status.PUBLISHED)
     sent = False
     if request.method == 'POST':
-        # Форма была передана на обработку
         form = EmailPostForm(request.POST)
-
         if form.is_valid():
             cd = form.cleaned_data
             post_url = request.build_absolute_uri(post.get_absolute_url())
-            subject = f"{cd['name']} recommends you read " \
-                      f"{post.title}"
-            message = f"Read {post.title} at {post_url}\n\n" \
-                      f"{cd['name']}\'s ({cd['email']}) comments: {cd['comments']}"
-            send_mail(subject, message, settings.EMAIL_HOST_USER,
-                      [cd['to']])
+            subject = f"{cd['name']} recommends you read {post.title}"
+            message = f"Read {post.title} at {post_url}\n\n{cd['name']}'s ({cd['email']}) comments: {cd['comments']}"
+            send_mail(subject, message, settings.EMAIL_HOST_USER, [cd['to']])
             sent = True
     else:
         form = EmailPostForm()
-    return render(request, 'blog/post/share.html', {'post': post,
-                                                  'form': form,'sent': sent})
+
+    return render(request, 'blog/post/share.html', {'post': post, 'form': form, 'sent': sent})
+
+
+def comment_create(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    if request.method == 'POST':
+        form = CommentCreateForm(request.POST, post=post, user=request.user)
+        if form.is_valid():
+            comment = form.save()
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'success': True, 'comment_id': comment.id})
+            return redirect(post.get_absolute_url())
+        else:
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'success': False, 'errors': form.errors})
+    return redirect(post.get_absolute_url())
 @require_POST
 def post_comment(request, post_id):
     if not request.user.is_authenticated:
@@ -193,7 +239,6 @@ def about(request):
     return render(request, 'blog/post/about.html')
 
 
-
 def travel(request):
     post_list = Post.published.all()
     paginator = Paginator(post_list, 3)
@@ -204,9 +249,10 @@ def travel(request):
         posts = paginator.page(1)
     except EmptyPage:
         posts = paginator.page(paginator.num_pages)
-    popular_posts = Post.published.annotate(
-        comment_count=Count('comments')
-    ).order_by('-comment_count')[:5]
 
-    return render(request,'blog/post/travel.html',{'posts': posts,
-                   'popular_posts': popular_posts})
+    popular_posts = Post.published.annotate(comment_count=Count('comments')).order_by('-comment_count')[:5]
+
+    return render(request, 'blog/post/travel.html', {
+        'posts': posts,
+        'popular_posts': popular_posts
+    })
