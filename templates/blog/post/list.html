@@ -1,6 +1,8 @@
 {% extends "blog/base.html" %}
 {% load cache %}
 {% load static %}
+{% load extras %}
+
 {% block css %}
 	<link rel="stylesheet" href="{% static 'css/open-iconic-bootstrap.min.css' %}">
 	<link rel="stylesheet" href="{% static 'css/animate.css' %}">
@@ -10,57 +12,79 @@
 	<link rel="stylesheet" href="{% static 'css/magnific-popup.css' %}">
 
 	<link rel="stylesheet" href="{% static 'css/aos.css' %}">
-
 	<link rel="stylesheet" href="{% static 'css/ionicons.min.css' %}">
 
 	<link rel="stylesheet" href="{% static 'css/bootstrap-datepicker.css' %}">
 	<link rel="stylesheet" href="{% static 'css/jquery.timepicker.css' %}">
 
-
 	<link rel="stylesheet" href="{% static 'css/flaticon.css' %}">
 	<link rel="stylesheet" href="{% static 'css/icomoon.css' %}">
 	<link rel="stylesheet" href="{% static 'css/style.css' %}">
 {% endblock %}
+
 {% block content %}
-
 	<div class="col-xl-8 py-5 px-md-5">
-		<div class="row pt-md-4">
+	<div class="row pt-md-4">
+		{% cache 300 "general_list" request.get_full_path %}
+			{% for post in posts %}
+				<div class="col-md-12">
+				<div class="blog-entry ftco-animate d-md-flex">
+					{% if post.image %}
+						<a href="{{ post.get_absolute_url }}" class="img img-2"
+						   style="background-image: url({{ post.image.url }});"></a>
+					{% else %}
+						<a href="{{ post.get_absolute_url }}" class="img img-2"
+						   style="background-image: url({% static 'images/image_1.jpg' %});"></a>
+					{% endif %}
+					<div class="text text-2 pl-md-4">
+						<h3 class="mb-2"><a href="{{ post.get_absolute_url }}">{{ post.title|safe }}</a></h3>
+						<div class="meta-wrap">
+							<p class="meta">
+								<span><i class="icon-calendar mr-2"></i>{{ post.publish|date:"F d, Y" }}</span>
+								<span><a href="#"><i
+										class="icon-folder-o mr-2"></i>#{{ post.tags.all|join:', ' }}</a></span>
+								<span><i class="icon-comment2 mr-2"></i>{{ post.comments.count }} комментариев</span>
+							</p>
+						</div>
+						<p class="mb-4">{{ post.body|linebreaks|truncatewords_html:30|safe }}</p>
+						<p><a href="{{ post.get_absolute_url|safe }}" class="btn-custom">Подробнее <span
+								class="ion-ios-arrow-forward"></span></a></p>
 
-			{% cache 300 "general_list" request.get_full_path %}
-				{% for post in posts %}
-					<div class="col-md-12">
-						<div class="blog-entry ftco-animate d-md-flex">
-							{% if post.image %}
-								<a href="{{ post.get_absolute_url }}" class="img img-2"
-								   style="background-image: url(
-										   {{ post.image.url }});"></a>
-							{% else %}
-								<a href="{{ post.get_absolute_url }}" class="img img-2"
-								   style="background-image: url({% static 'images/image_1.jpg' %});"></a>
-							{% endif %}
-							<div class="text text-2 pl-md-4">
-								<h3 class="mb-2"><a href="{{ post.get_absolute_url }}">{{ post.title }}</a>
-								</h3>
-								<div class="meta-wrap">
-									<p class="meta">
-										<span><i class="icon-calendar mr-2"></i>{{ post.publish|date:"F d, Y" }}</span>
-										<span><a href="#"><i
-												class="icon-folder-o mr-2"></i>#{{ post.tags.all|join:', ' }}</a></span>
+						<!-- Рейтинг с кнопками -->
+						<div class="rating-controls d-flex align-items-center gap-2 mt-3" data-post-id="{{ post.id }}">
+							<!-- Кнопка лайка -->
+							<button type="button"
+							        class="btn btn-sm btn-outline-success like-btn"
+							        data-post="{{ post.id }}"
+							        data-value="1">
+								👍 <span class="like-count">
+          {{ post_ratings|get_item:post.id|get_item:'likes'|default:0 }}
+        </span>
+							</button>
 
-										<span><i
-												class="icon-comment2 mr-2"></i>{{ post.comments.count }} комментариев</span>
+							<!-- Кнопка дизлайка -->
+							<button type="button"
+							        class="btn btn-sm btn-outline-danger dislike-btn"
+							        data-post="{{ post.id }}"
+							        data-value="-1">
+								👎 <span class="dislike-count">
+          {{ post_ratings|get_item:post.id|get_item:'dislikes'|default:0 }}
+        </span>
+							</button>
 
-									</p>
-								</div>
-								<p class="mb-4">{{ post.body|linebreaks|truncatewords_html:30 }}</p>
-								<p><a href="{{ post.get_absolute_url }}" class="btn-custom">Подробнее <span
-										class="ion-ios-arrow-forward"></span></a></p>
-							</div>
+							<!-- Общий рейтинг -->
+							<span class="badge bg-primary rating-sum">
+        Рейтинг: <span class="rating-value">
+          {{ post_ratings|get_item:post.id|get_item:'rating_sum'|default:0 }}
+        </span>
+      </span>
 						</div>
 					</div>
-				{% endfor %}
-			{% endcache %}
-		</div><!-- END-->
+				</div>
+			{% endfor %}
+		{% endcache %}
+		</div><!-- END -->
+
 
 		<div class="row">
 			<div class="col">
@@ -71,6 +95,13 @@
 		</div>
 	</div>
 {% endblock %}
+
+{% block script %}
+	<!-- CSRF-токен для AJAX-запросов -->
+	<input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+	<script src="{% static 'js/ratings.js' %}"></script>
+{% endblock %}
+
 {% block footer %}
 	{% include 'blog/post/includes/sidebar.html' %}
 {% endblock %}

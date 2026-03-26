@@ -1,284 +1,294 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 	<meta charset="UTF-8">
 	<title>Вход</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+	<script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+	<script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+	<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+	<style>
+		@import url('https://fonts.googleapis.com/css2?family=Montserrat&display=swap');
 
-</head>
-<body>
-<style>
-	@import url('https://fonts.googleapis.com/css2?family=Montserrat&display=swap');
-
-	* {
-		margin: 0;
-		padding: 0;
-		box-sizing: border-box;
-		font-family: 'Montserrat', sans-serif;
-	}
-
-	.wrapper {
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		height: 100vh;
-		width: 100%;
-		background: url('https://codingstella.com/wp-content/uploads/2024/01/download-5.jpeg') no-repeat;
-		background-size: cover;
-		background-position: center;
-		animation: animateBg 5s linear infinite;
-	}
-
-	@keyframes animateBg {
-		100% {
-			filter: hue-rotate(360deg);
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+			font-family: 'Montserrat', sans-serif;
 		}
-	}
 
-	.login-box {
-		position: relative;
-		width: 500px;
-		height: 550px;
-		background: transparent;
-		border-radius: 15px;
-		border: 2px solid rgba(255, 255, 255, .5);
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		backdrop-filter: blur(15px);
-	}
-
-	h2 {
-		font-size: 2em;
-		color: #fff;
-		text-align: center;
-	}
-
-	.input-box {
-		position: relative;
-		width: 310px;
-		margin: 30px 0;
-		border-bottom: 1px solid #fff;
-	}
-
-	.input-box label {
-		position: absolute;
-		top: 50%;
-		left: 5px;
-		transform: translateY(-50%);
-		font-size: 1em;
-		color: #fff;
-		pointer-events: none;
-		transition: .5s;
-	}
-
-	.input-box input:focus ~ label,
-	.input-box input:valid ~ label,
-	.input-box input:active ~ label {
-		top: -5px;
-		background: transparent; /* Сохраняем прозрачность при фокусе/заполнении */
-		color: #fff;
-	}
-
-	.input-box input {
-		width: 100%;
-		height: 50px;
-		background: transparent;
-		border: none;
-		outline: none;
-		font-size: 1em;
-		color: #fff;
-		padding: 0 35px 0 5px;
-	}
-
-	.input-box .icon {
-		position: absolute;
-		right: 8px;
-		top: 50%;
-		color: #fff;
-		transform: translateY(-50%);
-	}
-
-	.remember-forgot {
-		margin: -15px 0 15px;
-		font-size: .9em;
-		color: #fff;
-		display: flex;
-		justify-content: space-between;
-	}
-
-	.remember-forgot label input {
-		margin-right: 3px;
-	}
-
-	.remember-forgot a {
-		color: #fff;
-		text-decoration: none;
-	}
-
-	.remember-forgot a:hover {
-		text-decoration: underline;
-	}
-
-	button {
-		width: 100%;
-		height: 40px;
-		background-color: #fff;
-		border: none;
-		border-radius: 40px;
-		cursor: pointer;
-		font-size: 1em;
-		color: #000;
-		font-weight;
-		500;
-	}
-
-	.register-link {
-		font-size: .9em;
-		color: #fff;
-		text-align: center;
-		margin: 25px 0 10px;
-	}
-
-	.register-link p a {
-		color: #fff;
-		text-decoration: none;
-		font-weight: 600;
-	}
-
-	.register-link p a:hover {
-		text-decoration: underline;
-	}
-
-	@media (max-width: 500px) {
-		.login-box {
-			width: 100%;
+		.wrapper {
+			display: flex;
+			justify-content: center;
+			align-items: center;
 			height: 100vh;
-			border: none;
-			border-radius: 0;
+			width: 100%;
+			background: url('https://codingstella.com/wp-content/uploads/2024/01/download-5.jpeg') no-repeat;
+			background-size: cover;
+			background-position: center;
+			animation: animateBg 5s linear infinite;
+		}
+
+		@keyframes animateBg {
+			100% {
+				filter: hue-rotate(360deg);
+			}
+		}
+
+		.login-box {
+			position: relative;
+			width: 500px;
+			height: 600px;
+			background: transparent;
+			border-radius: 15px;
+			border: 2px solid rgba(255, 255, 255, .5);
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			backdrop-filter: blur(15px);
+		}
+
+		h2 {
+			font-size: 2em;
+			color: #fff;
+			text-align: center;
+			margin-bottom: 20px;
 		}
 
 		.input-box {
-			width: 290px;
+			position: relative;
+			width: 310px;
+			margin: 25px 0;
+			border-bottom: 1px solid #fff;
 		}
-	}
 
-	.input-box input::placeholder {
-		color: rgba(255, 255, 255, 0.7);
-		font-size: 0.9em;
-		transition: color 0.3s ease;
-	}
+		.input-box label {
+			position: absolute;
+			top: 50%;
+			left: 5px;
+			transform: translateY(-50%);
+			font-size: 1em;
+			color: #fff;
+			pointer-events: none;
+			transition: .5s;
+		}
 
-	.input-box input:focus::placeholder {
-		color: rgba(255, 255, 255, 0.4);
-	}
+		.input-box input:focus ~ label,
+		.input-box input:valid ~ label {
+			top: -5px;
+			color: #00bfff;
+		}
 
-	.input-box input:valid + label {
-		top: -20px;
-		left: 5px;
-		font-size: 0.8em;
-		color: #00bfff;
-	}
+		.input-box input {
+			width: 100%;
+			height: 50px;
+			background: transparent;
+			border: none;
+			outline: none;
+			font-size: 1em;
+			color: #fff;
+			padding: 0 35px 0 5px;
+		}
 
-	.input-box .icon {
-		position: absolute;
-		right: 8px;
-		top: 50%;
-		color: #fff;
-		transform: translateY(-50%);
-	}
+		.input-box input::placeholder {
+			color: rgba(255, 255, 255, 0.7);
+			font-size: 0.9em;
+		}
 
-	.input-box.error input {
-		background: rgba(255, 0, 0, 0.1);
-		border-bottom: 2px solid #ff4444;
-	}
+		.input-box input:focus::placeholder {
+			color: rgba(255, 255, 255, 0.4);
+		}
 
-	.input-box.error input:valid {
-		background: rgba(0, 255, 0, 0.1);
-		border-bottom: 2px solid #00ff00;
-	}
+		.input-box .icon {
+			position: absolute;
+			right: 8px;
+			top: 50%;
+			color: #fff;
+			transform: translateY(-50%);
+		}
 
-	.form-check {
-		display: flex;
-		align-items: center;
-		margin-bottom: 1rem;
-	}
+		.remember-forgot {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			width: 310px;
+			margin: -10px 0 20px;
+			font-size: .9em;
+			color: #fff;
+		}
 
-	.form-check-label {
-		margin-left: 0.5rem;
-		cursor: pointer;
-	}
-</style>
-<!-- partial:index.partial.html -->
+		.remember-forgot a {
+			color: #fff;
+			text-decoration: none;
+		}
+
+		.remember-forgot a:hover {
+			text-decoration: underline;
+		}
+
+		button {
+			width: 310px;
+			height: 40px;
+			background-color: #fff;
+			border: none;
+			border-radius: 40px;
+			cursor: pointer;
+			font-size: 1em;
+			color: #000;
+			font-weight: 500;
+			transition: background .3s;
+		}
+
+		button:hover {
+			background: #f0f0f0;
+		}
+
+		.register-link {
+			margin-top: 20px;
+			font-size: .9em;
+			color: #fff;
+			text-align: center;
+		}
+
+		.register-link a {
+			color: #fff;
+			text-decoration: none;
+			font-weight: 600;
+		}
+
+		.register-link a:hover {
+			text-decoration: underline;
+		}
+
+		.social-login {
+			display: flex;
+			justify-content: center;
+			gap: 15px;
+			margin-top: 20px;
+		}
+
+		.btn-github, .btn-google {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			padding: 10px 15px;
+			background: #fff;
+			color: #000;
+			border-radius: 8px;
+			text-decoration: none;
+			font-weight: 500;
+			transition: all .3s;
+		}
+
+		.btn-github:hover {
+			background: #000;
+			color: #fff;
+		}
+
+		.btn-google:hover {
+			background: #db4437;
+			color: #fff;
+		}
+
+		.g-recaptcha {
+			display: flex;
+			justify-content: center;
+			margin: 15px 0;
+		}
+
+		.errorlist {
+			color: #ff4444;
+			font-size: 0.85em;
+			margin-top: 5px;
+		}
+
+		@media (max-width: 500px) {
+			.login-box {
+				width: 95%;
+				height: auto;
+				min-height: 500px;
+				border: none;
+				border-radius: 0;
+			}
+
+			.input-box, .remember-forgot, button, .social-login {
+				width: 90%;
+			}
+		}
+	</style>
+</head>
+<body>
+
 <div class="wrapper">
-
 	<div class="login-box">
 		<form method="post">
+			{% csrf_token %}
 
 			<h2>Войти</h2>
-			{% csrf_token %}
+
+			<!-- Поле логина -->
 			<div class="input-box">
                 <span class="icon">
                     <ion-icon name="user"></ion-icon>
                 </span>
 				{{ form.username }}
-				<label for="{{ form.username.id_for_label }}">Имя</label>
+				<label for="{{ form.username.id_for_label }}"></label>
 				{% if form.username.errors %}
-					<div class="error">{{ form.username.errors }}</div>
+					<div class="errorlist">{{ form.username.errors }}</div>
 				{% endif %}
 			</div>
 
 			<!-- Поле пароля -->
 			<div class="input-box">
-                <span class="icon">
-            <ion-icon name="lock-closed"></ion-icon>
-                </span>
+
 				{{ form.password }}
-				<label for="{{ form.password.id_for_label }}">Пароль</label>
+				<label for="{{ form.password.id_for_label }}"></label>
 				{% if form.password.errors %}
-					<div class="error">{{ form.password.errors }}</div>
+					<div class="errorlist">{{ form.password.errors }}</div>
 				{% endif %}
 			</div>
 
-			<!-- Чекбокс "Запомнить меня" и ссылка "Забыли пароль" -->
+			<!-- "Запомнить меня" и "Забыли пароль?" -->
 			<div class="remember-forgot">
-				{{ form.remember_me }}
-				<label for="{{ form.remember_me.id_for_label }}" class="checkbox-label" aria-label="Remember me">
-					Запомнить меня
+				<label class="checkbox-label">
+					{{ form.remember_me }} Запомнить меня
 				</label>
 				<a href="{% url 'password_reset' %}">Забыли пароль?</a>
 			</div>
 
-			<!-- Кнопка отправки -->
-			<button type="submit">Войти</button>
+			<!-- Ошибки формы -->
+			{% if form.non_field_errors %}
+				<div class="errorlist">
+					{% for error in form.non_field_errors %}
+						<p>{{ error }}</p>
+					{% endfor %}
+				</div>
+			{% endif %}
 
-			<!-- Сообщение об ошибке формы -->
-			{#            {% if form.non_field_errors %}#}
-			{#                <div class="alert alert-danger mt-3">#}
-			{#                    {% for error in form.non_field_errors %}#}
-			{#                        {{ error }}#}
-			{#                    {% endfor %}#}
-			{#                </div>#}
-			{#            {% endif %}#}
+			<!-- Кнопка входа -->
+			<button type="submit">Войти</button>
 
 			<!-- Ссылка на регистрацию -->
 			<div class="register-link">
 				<p>Нет аккаунта? <a href="{% url 'accounts:signup' %}">Регистрация</a></p>
 			</div>
-			<div style="display: flex;">
-				<a href="{% url 'social:begin' 'github' %}" class="btn btn-github" style="text-decoration: none;padding: 15px 15px;">
-				<i class="fab fa-github"></i>GitHub
-			</a>
-			<a href="{% url 'social:begin' 'google-oauth2' %}" class="btn btn-google" style="text-decoration: none;padding: 15px 15px;">
-				<i class="fab fa-google"></i>Google
-			</a>
+
+			<!-- Соцсети -->
+			<div class="social-login">
+				<a href="{% url 'social:begin' 'github' %}" class="btn-github">
+					<i class="fab fa-github"></i> GitHub
+				</a>
+				<a href="{% url 'social:begin' 'google-oauth2' %}" class="btn-google">
+					<i class="fab fa-google"></i> Google
+				</a>
+			</div>
+			<!--reCaptcha-->
+		<div class="">
+				<div class="g-recaptcha" data-sitekey="{{ RECAPTCHA_SITE_KEY }}"></div>
 			</div>
 		</form>
 	</div>
-
 </div>
-<!-- partial -->
-<script src='https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js'></script>
-<script src='https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js'></script>
+
 </body>
 </html>

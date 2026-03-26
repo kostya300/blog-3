@@ -11,6 +11,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import PasswordChangeView
 from django.contrib.messages.views import SuccessMessageMixin
 from .models import Profile
+from django.conf import settings
 class ProfileDetailView(generic.DetailView):
     model = Profile
     context_object_name = 'profile'
@@ -61,6 +62,11 @@ class CustomLoginView(generic.FormView):
     template_name = 'registration/login.html'
     success_url = reverse_lazy('blog:post_list')
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['RECAPTCHA_SITE_KEY'] = settings.RECAPTCHA_PUBLIC_KEY
+        return context
+
     def get_form_kwargs(self):
         """Передаём request в форму для обработки remember_me"""
         kwargs = super().get_form_kwargs()
@@ -74,11 +80,10 @@ class CustomLoginView(generic.FormView):
         # Обработка remember_me
         remember_me = form.cleaned_data.get('remember_me')
         if remember_me:
-            # Устанавливаем длительное время жизни сессии (2 недели)
-            self.request.session.set_expiry(1209600)
-            self.request.session.set_test_cookie()# 2 недели в секундах
+            # Сессия будет жить 2 недели
+            self.request.session.set_expiry(1209600)  # 2 недели в секундах
         else:
-            # Сессия закрывается при закрытии браузера
+            # Сессия закроется при закрытии браузера
             self.request.session.set_expiry(0)
 
         messages.success(self.request, 'Вы успешно вошли в систему!')

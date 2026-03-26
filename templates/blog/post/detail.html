@@ -1,16 +1,16 @@
 {% extends 'blog/base.html' %}
 {% load static %}
-
+{% load extras %}
 {% block content %}
 <div class="col-lg-8 px-md-5 py-5">
   <div class="row pt-md-4">
 
     <!-- Заголовок и контент -->
-    <h1 class="mb-3">{{ post.title }}</h1>
-    <p>{{ post.body }}</p>
+    <h1 class="mb-3">{{ post.title|safe }}</h1>
+    <p>{{ post.body|safe }}</p>
 
     {% if post.image %}
-      <p><img src="{{ post.image.url }}" alt="{{ post.title }}" class="img-fluid"></p>
+      <p><img src="{{ post.image.url }}" alt="{{ post.title|safe }}" class="img-fluid"></p>
     {% endif %}
 
     <!-- Теги -->
@@ -23,7 +23,7 @@
         {% endfor %}
       </div>
     </div>
-	<div class="w-100"></div>
+    <div class="w-100"></div>
 
     <!-- Автор и кнопка редактирования -->
     <div class="about-author d-flex p-4 bg-light align-items-center">
@@ -32,13 +32,44 @@
       </div>
       <img src="{{ post.image.url }}" alt="Author" class="img-fluid rounded-circle" width="100px" height="100px">
     </div>
-	<div class="w-100"></div>
-   <!-- Кнопка редактирования (только для автора) -->
+    <div class="w-100"></div>
+
+    <!-- Кнопка редактирования (только для автора) -->
     {% if request.user.is_authenticated %}
       <div class="text-center mb-5 w-100">
         <a href="{% url 'blog:post_update' slug=post.slug %}" class="btn btn-primary">Редактировать пост</a>
       </div>
     {% endif %}
+
+    <!-- Рейтинг с кнопками -->
+    <div class="rating-controls d-flex align-items-center gap-2 mt-3" data-post-id="{{ post.id }}">
+      <!-- Кнопка лайка -->
+      <button type="button"
+              class="btn btn-sm btn-outline-success like-btn"
+              data-post="{{ post.id }}"
+              data-value="1">
+        👍 <span class="like-count">
+          {{ post_ratings|get_item:post.id|get_item:'likes'|default:0 }}
+        </span>
+      </button>
+
+      <!-- Кнопка дизлайка -->
+      <button type="button"
+              class="btn btn-sm btn-outline-danger dislike-btn"
+              data-post="{{ post.id }}"
+              data-value="-1">
+        👎 <span class="dislike-count">
+          {{ post_ratings|get_item:post.id|get_item:'dislikes'|default:0 }}
+        </span>
+      </button>
+
+      <!-- Общий рейтинг -->
+      <span class="badge bg-primary rating-sum">
+        Рейтинг: <span class="rating-value">
+          {{ post_ratings|get_item:post.id|get_item:'rating_sum'|default:0 }}
+        </span>
+      </span>
+    </div>
 
     <!-- Комментарии -->
     <div class="pt-5 mt-5">
@@ -58,7 +89,6 @@
         </p>
       {% endif %}
     </div>
-
   </div>
 </div>
 
@@ -127,7 +157,9 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 {% endblock %}
-
+{% block script %}
+    <script src="{% static 'js/ratings.js' %}"></script>
+{% endblock %}
 {% block footer %}
   {% include 'blog/post/includes/sidebar.html' %}
 {% endblock %}

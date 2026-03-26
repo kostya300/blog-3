@@ -25,4 +25,5 @@ urlpatterns = [
     path('post/create/', views.PostCreateView.as_view(), name='post_create'),
     path('post/<slug:slug>/update/', views.PostUpdateView.as_view(), name='post_update'),
     path('travel/', views.travel, name='travel'),
+    path('rating/', views.RatingCreateView.as_view(), name='rating'),
 ]

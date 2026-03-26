@@ -1,15 +1,27 @@
 from django import forms
-from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.conf import settings
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm, PasswordResetForm, SetPasswordForm
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
-from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 from .models import Profile
+from django_recaptcha.fields import ReCaptchaField
+import requests
+
+
+
 
 class CustomSetPasswordForm(SetPasswordForm):
-    new_password1 = forms.CharField(label='Новый пароль', widget=forms.PasswordInput(attrs={'class': 'form-control input-field','placeholder': 'Введите новый пароль','required': True,
-            'id': 'id_new_password1'}))
+    new_password1 = forms.CharField(
+        label='Новый пароль',
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control input-field',
+            'placeholder': 'Введите новый пароль',
+            'required': True,
+            'id': 'id_new_password1'
+        })
+    )
     new_password2 = forms.CharField(
         label='Подтверждение пароля',
         widget=forms.PasswordInput(attrs={
@@ -19,15 +31,16 @@ class CustomSetPasswordForm(SetPasswordForm):
             'id': 'id_new_password2'
         })
     )
+
     def clean_new_password2(self):
         password1 = self.cleaned_data.get('new_password1')
         password2 = self.cleaned_data.get('new_password2')
-        if password1 and password2:
-            if password1 != password2:
-                raise ValidationError(
-                    _('Введённые пароли не совпадают.'),
-                    code='password_mismatch'
-                )
+        if password1 and password2 and password1 != password2:
+            raise ValidationError(
+                _('Введённые пароли не совпадают.'),
+                code='password_mismatch'
+            )
+        return password2
 
 
 class CustomPasswordResetForm(PasswordResetForm):
@@ -46,70 +59,82 @@ class CustomLoginForm(AuthenticationForm):
     username = forms.CharField(
         widget=forms.TextInput(attrs={
             'class': 'form-control',
-            'required': True,
-            'placeholder': ''
+            'placeholder': 'Логин'
         })
     )
     password = forms.CharField(
         widget=forms.PasswordInput(attrs={
             'class': 'form-control',
-            'required': True,
-            'placeholder': ''
+            'placeholder': 'Пароль'
         })
     )
     remember_me = forms.BooleanField(
         required=False,
-        widget=forms.CheckboxInput(attrs={
-            'class': 'form-check-input',
-        }),
-        label='Remember me'
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        label='Запомнить меня'
     )
 
     def clean(self):
         username = self.cleaned_data.get('username')
         password = self.cleaned_data.get('password')
+        recaptcha_response = self.data.get('g-recaptcha-response')
 
+        # Проверяем reCAPTCHA
+        if  recaptcha_response:
+            data = {
+                'secret': settings.RECAPTCHA_PRIVATE_KEY,
+                'response': recaptcha_response,
+                'remoteip': self.data.get('REMOTE_ADDR', ''),
+            }
+            r = requests.post('https://www.google.com/recaptcha/api/siteverify', data=data)
+            result = r.json()
+            if not result.get('success'):
+                raise ValidationError("Пожалуйста, пройдите проверку reCAPTCHA.")
+        else:
+            raise ValidationError("Пожалуйста, пройдите проверку reCAPTCHA.")
+        # Проверяем аутентификацию
         if username and password:
             self.user_cache = authenticate(
                 username=username,
                 password=password
             )
             if self.user_cache is None:
-                raise forms.ValidationError(
-                    "Неверное имя пользователя или пароль."
-                )
+                raise forms.ValidationError("Неверное имя пользователя или пароль.")
             elif not self.user_cache.is_active:
                 raise forms.ValidationError("Аккаунт неактивен.")
+
         return self.cleaned_data
 
     def get_user(self):
         return self.user_cache
+
+
 class SignUpForm(UserCreationForm):
     email = forms.EmailField(
         required=True,
         widget=forms.EmailInput(attrs={
             'class': 'form-control',
-            'placeholder': ''
+            'placeholder': 'Email'
         })
     )
     username = forms.CharField(
         widget=forms.TextInput(attrs={
             'class': 'form-control',
-            'placeholder': ''
+            'placeholder': 'Имя пользователя'
         })
     )
     password1 = forms.CharField(
         label='Пароль',
         widget=forms.PasswordInput(attrs={
             'class': 'form-control',
-            'placeholder': ''
+            'placeholder': 'Пароль'
         })
     )
     password2 = forms.CharField(
         label='Подтверждение пароля',
         widget=forms.PasswordInput(attrs={
             'class': 'form-control',
-            'placeholder': ''
+            'placeholder': 'Подтвердите пароль'
         })
     )
 
@@ -129,6 +154,7 @@ class SignUpForm(UserCreationForm):
         if commit:
             user.save()
         return user
+
 
 class ProfileUpdateForm(forms.ModelForm):
     username = forms.CharField(

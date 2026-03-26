@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 import os
 from pathlib import Path
+import sys
 import mimetypes
 from drf_spectacular.settings import SPECTACULAR_DEFAULTS
 
@@ -27,7 +28,7 @@ SECRET_KEY = "django-insecure-$$+^w-oey%984dt(jb-!qiz52)8e103wrty9h3+d0i^nlqcst@
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['127.0.0.1']
 
 # Application definition
 
@@ -54,6 +55,10 @@ INSTALLED_APPS = [
     'mptt',
     'django_mptt_admin',
     'debug_toolbar',
+    'django_recaptcha',
+    # для работы формы
+    'ckeditor_uploader',
+    'ckeditor'
 ]
 
 SITE_ID = 1
@@ -186,7 +191,8 @@ def show_toolbar(request):
 
 
 DEBUG_TOOLBAR_CONFIG = {
-    "SHOW_TOOLBAR_CALLBACK": show_toolbar,
+
+    "IS_RUNNING_TESTS": any('test' in arg for arg in sys.argv),
 }
 
 # Internationalization
@@ -202,8 +208,10 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
-
+RECAPTCHA_PUBLIC_KEY = '6LctQZEsAAAAADUS0EJGPoyJ8ke3k33_3j6MfaVc'
+RECAPTCHA_PRIVATE_KEY = '6LctQZEsAAAAAJsko9rF_z-SJrP3GLKbEAMfVbKU'
 # start oauth git and google
+
 SOCIAL_AUTH_GITHUB_KEY = 'Ov23liGhCo13unikBt9H'
 SOCIAL_AUTH_GITHUB_SECRET = '421645f129830499b6a4209ca797c5e8aabf6be7'
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '48328434690-kcqd4cemubfamc78t3363uh0q755skr7.apps.googleusercontent.com'
@@ -213,6 +221,13 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 LOGIN_URL = '/accounts/login/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+CKEDITOR_UPLOAD_PATH = "uploads/"
+CKEDITOR_CONFIGS = {
+    'awesome_ckeditor': {
+        'toolbar': 'full',
+        'height:': 300,
+    },
+}
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 SESSION_COOKIE_AGE = 1209600

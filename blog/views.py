@@ -2,16 +2,22 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.views.generic import ListView, DetailView, CreateView, UpdateView
+from django.views.generic import View
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import redirect_to_login
 from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
 from .forms import EmailPostForm, CommentForm, SearchForm, PostCreateForm, PostUpdateForm, CommentCreateForm
-from .models import Post, Category, Comment
+from .models import Post, Category, Comment, Rating
 from django.views.decorators.http import require_POST
 from taggit.models import Tag
 from django.db.models import Count, F
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
+from django.db import transaction
+
+from django.db.models import Count, F, Q, Sum
 from .utils import get_comment_word
 from django.http import JsonResponse
 
@@ -25,6 +31,7 @@ class PostListView(ListView):
 
     def get_queryset(self):
         queryset = Post.published.all()
+
         tag_slug = self.kwargs.get('tag_slug')
         if tag_slug:
             tag = get_object_or_404(Tag, slug=tag_slug)
@@ -32,7 +39,7 @@ class PostListView(ListView):
             self.tag = tag
         else:
             self.tag = None
-        return queryset
+        return queryset.prefetch_related('ratings')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -42,6 +49,41 @@ class PostListView(ListView):
         ).order_by('-comment_count')[:5]
         context['most_viewed_posts'] = Post.published.order_by('-views')[:5]
         context['categories'] = Category.objects.all()
+
+        # Получаем все рейтинги для постов на странице
+        posts = context["posts"]
+        post_ids = [post.id for post in posts]
+
+        ratings = Rating.objects.filter(post_id__in=post_ids).values('post_id').annotate(
+            rating_sum=Sum('value'),
+            likes=Sum('value', filter=Q(value=1)),
+            dislikes=Sum('value', filter=Q(value=-1))
+        )
+
+        # Обрабатываем NULL-значения
+        for item in ratings:
+            item['rating_sum'] = item['rating_sum'] or 0
+            item['likes'] = item['likes'] or 0
+            item['dislikes'] = item['dislikes'] or 0
+
+        # Преобразуем в словарь для быстрого доступа
+        ratings_dict = {item['post_id']: item for item in ratings}
+
+        # Добавляем к каждому посту его рейтинг
+        post_ratings = {}
+        for post in posts:
+            rating_info = ratings_dict.get(post.id, {
+                'rating_sum': 0,
+                'likes': 0,
+                'dislikes': 0
+            })
+            post_ratings[post.id] = {
+                'rating_sum': rating_info['rating_sum'],
+                'likes': rating_info['likes'],
+                'dislikes': rating_info['dislikes'],
+            }
+
+        context['post_ratings'] = post_ratings
         return context
 
 
@@ -106,7 +148,18 @@ class PostDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         post = self.object
-
+        # Расчёт рейтингов для текущего поста
+        ratings = post.ratings.aggregate(
+            rating_sum=Sum('value'),
+            likes=Sum('value', filter=Q(value=1)),
+            dislikes=Sum('value', filter=Q(value=-1))
+        )
+        # Обрабатываем NULL-значения
+        rating_info = {
+            'rating_sum': ratings['rating_sum'] or 0,
+            'likes': ratings['likes'] or 0,
+            'dislikes': ratings['dislikes'] or 0,
+        }
         root_comments = post.comments.filter(active=True, parent__isnull=True)
         for comment in root_comments:
             comment.children_comments = comment.children.filter(active=True)
@@ -127,8 +180,48 @@ class PostDetailView(DetailView):
             'categories': Category.objects.all(),
             'popular_posts': Post.published.annotate(comment_count=Count('comments')).order_by('-comment_count')[:5],
             'most_viewed_posts': Post.published.order_by('-views')[:5],
+            'post_ratings': {post.id: rating_info}
         })
         return context
+
+
+class RatingCreateView(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        post_id = request.POST.get('post_id')
+        value = int(request.POST.get('value'))
+
+        try:
+            post = Post.objects.get(id=post_id)
+            rating, created = Rating.objects.get_or_create(
+                post=post,
+                user=request.user,
+                defaults={'value': value}
+            )
+
+            if not created:
+                if rating.value == value:
+                    rating.delete()
+                else:
+                    rating.value = value
+                    rating.save()
+
+            # Пересчёт рейтингов после изменения
+            ratings = post.ratings.aggregate(
+                rating_sum=Sum('value'),
+                likes=Sum('value', filter=Q(value=1)),
+                dislikes=Sum('value', filter=Q(value=-1))
+            )
+
+            return JsonResponse({
+                'rating_sum': ratings['rating_sum'] or 0,
+                'likes': ratings['likes'] or 0,
+                'dislikes': ratings['dislikes'] or 0
+            })
+        except Post.DoesNotExist:
+            return JsonResponse({'error': 'Пост не найден'}, status=404)
+        except Exception as e:
+            return JsonResponse({'error': 'Ошибка сервера'}, status=500)
+
 
 
 def post_list_by_category(request, category_slug):
@@ -213,6 +306,8 @@ def comment_create(request, post_id):
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return JsonResponse({'success': False, 'errors': form.errors})
     return redirect(post.get_absolute_url())
+
+
 @require_POST
 def post_comment(request, post_id):
     if not request.user.is_authenticated:

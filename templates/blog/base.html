@@ -1,4 +1,5 @@
 {% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -111,8 +112,31 @@
 		        stroke="#F96D00"/>
 	</svg>
 </div>
+<button id="theme-toggle">Переключить тему</button>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const toggleButton = document.getElementById('theme-toggle');
+    const currentTheme = localStorage.getItem('theme') || 'light';
 
 
+    if (currentTheme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        toggleButton.textContent = 'Светлая тема';
+    } else {
+        toggleButton.textContent = 'Тёмная тема';
+    }
+
+    toggleButton.addEventListener('click', function() {
+        const current = document.documentElement.getAttribute('data-theme');
+        const newTheme = current === 'dark' ? 'light' : 'dark';
+
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+
+        this.textContent = newTheme === 'dark' ? 'Светлая тема' : 'Тёмная тема';
+    });
+});
+</script>
 <script src="{% static 'js/jquery.min.js' %}"></script>
 <script src="{% static 'js/jquery-migrate-3.0.1.min.js' %}"></script>
 <script src="{% static 'js/popper.min.js' %}"></script>

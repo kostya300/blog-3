@@ -1,6 +1,6 @@
 from django import forms
 from .models import Comment, Post
-
+from ckeditor.widgets import CKEditorWidget
 
 class EmailPostForm(forms.Form):
     name = forms.CharField(
@@ -125,6 +125,7 @@ class CommentCreateForm(forms.ModelForm):
             comment.save()
         return comment
 class PostCreateForm(forms.ModelForm):
+    title = forms.CharField(widget=CKEditorWidget(config_name='awesome_ckeditor'))
     class Meta:
         model = Post
         fields = ('title',
@@ -151,6 +152,7 @@ class PostCreateForm(forms.ModelForm):
                 'class': 'form-control tags-input'
             })
 class PostUpdateForm(forms.ModelForm):
+    title = forms.CharField(widget=CKEditorWidget(config_name='awesome_ckeditor'))
     class Meta:
         model = Post
         fields = PostCreateForm.Meta.fields + ('updater', 'fixed')

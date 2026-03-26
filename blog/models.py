@@ -3,20 +3,24 @@ from PIL import Image
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.contrib.auth.models import User
-from django.db.models import Count
+from django.db.models.aggregates import Sum
 from django.utils import timezone
-from pathlib import Path
 from django.urls import reverse
-from taggit.managers import TaggableManager
+from taggit.managers import TaggableManager  # Исправлен импорт
 from mptt.models import MPTTModel, TreeForeignKey
-from services .utils import unique_slugify
+from services.utils import unique_slugify
+from ckeditor.fields import RichTextField
+
+
+# Исправлен импорт
+
 
 def validate_image_file(file):
     # Проверка расширения
     if not file.name.lower().endswith(('.jpg', '.jpeg', '.png')):
         raise ValidationError('Недопустимое расширение файла')
 
-    # Проверка размера (5 МБ = 5 * 1024 * 1024 байт)
+    # Проверка размера (5 МБ = 5 × 1024 × 1024 байт)
     max_size = 5 * 1024 * 1024
     if file.size > max_size:
         raise ValidationError('Размер файла не должен превышать 5 МБ')
@@ -26,6 +30,11 @@ def validate_image_file(file):
         img.verify()
     except (IOError, SyntaxError):
         raise ValidationError('не является корректным изображением или повреждён')
+
+
+def post_image_upload_to(instance, filename):
+    """Функция для формирования пути загрузки изображений"""
+    return f'images/{instance.publish.year}/{instance.publish.month:02d}/{instance.publish.day:02d}/{filename}'
 
 
 class PublishedManager(models.Manager):
@@ -57,16 +66,15 @@ class Category(MPTTModel):
     def __str__(self):
         return self.title
 
+
 class PostManager(models.Manager):
-    """
-        Кастомный менеджер для модели постов
-    """
+    """Кастомный менеджер для модели постов"""
 
     def get_queryset(self):
-        """
-        Список постов (SQL запрос с фильтрацией по статусу опубликованно)
-        """
-        return super().get_queryset().filter(status='published')
+        """Список постов (SQL запрос с фильтрацией по статусу опубликованно)"""
+        return super().get_queryset().filter(status=Post.Status.PUBLISHED)  # Исправлено
+
+
 
 
 class Post(models.Model):
@@ -74,7 +82,7 @@ class Post(models.Model):
         DRAFT = 'DF', 'Draft'
         PUBLISHED = 'PB', 'Published'
 
-    title = models.CharField(max_length=250)
+    title = RichTextField(config_name='awesome_ckeditor', verbose_name='Краткое описание', max_length=500)
     slug = models.SlugField(verbose_name='URL', max_length=255, blank=True)
     category = TreeForeignKey(
         to='Category',
@@ -89,7 +97,7 @@ class Post(models.Model):
         on_delete=models.PROTECT,
         related_name='blog_posts'
     )
-    body = models.TextField()
+    body = RichTextField(config_name='awesome_ckeditor', verbose_name='Полный текст записи')
     views = models.PositiveIntegerField(default=0)
     publish = models.DateTimeField(default=timezone.now)
     created = models.DateTimeField(auto_now_add=True)
@@ -120,6 +128,16 @@ class Post(models.Model):
     published = PublishedManager()
     tags = TaggableManager()
 
+    def get_sum_rating(self):
+        from django.db.models import Sum
+        result = self.ratings.aggregate(Sum('value'))['value__sum']
+        return result or 0
+
+    def get_likes_count(self):
+        return self.ratings.filter(value=1).count()
+
+    def get_dislikes_count(self):
+        return self.ratings.filter(value=-1).count()
     class Meta:
         db_table = 'blog_post'
         ordering = ['-publish', '-created']
@@ -134,6 +152,7 @@ class Post(models.Model):
                 Получаем прямую ссылку на статью
                 """
         return reverse('blog:post_detail', args=[self.publish.year, self.publish.month, self.publish.day, self.slug])
+
     def save(self, *args, **kwargs):
         """
             При сохранении генерируем слаг и проверяем на уникальность
@@ -141,9 +160,29 @@ class Post(models.Model):
         if not self.slug:
             self.slug = unique_slugify(self, self.title)
         super().save(*args, **kwargs)
+
     def __str__(self):
         return self.title
 
+class Rating(models.Model):
+    """
+    Модель рейтинга: Лайк - Дизлайк
+    """
+    post = models.ForeignKey(to=Post, verbose_name='Запись', on_delete=models.CASCADE, related_name='ratings')
+    user = models.ForeignKey(to=User, verbose_name='Пользователь', on_delete=models.CASCADE, blank=True, null=True)
+    value = models.IntegerField(verbose_name='Значение', choices=[(1, 'Нравится'), (-1, 'Не нравится')])
+    time_create = models.DateTimeField(verbose_name='Время добавления', auto_now_add=True)
+    ip_address = models.GenericIPAddressField(verbose_name='IP Адрес')
+
+    class Meta:
+        unique_together = ('post', 'ip_address')
+        ordering = ('-time_create',)
+        indexes = [models.Index(fields=['-time_create', 'value'])]
+        verbose_name = 'Рейтинг'
+        verbose_name_plural = 'Рейтинги'
+
+    def __str__(self):
+        return self.post.title
 
 class Comment(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments')
@@ -169,12 +208,15 @@ class Comment(models.Model):
             models.Index(fields=['created']),
             models.Index(fields=['parent']),  # важно для производительности
         ]
+
     def get_children(self):
         """Возвращает все дочерние комментарии"""
         return self.children.filter(active=True)
+
     def is_parent(self):
         """Проверяет, есть ли у комментария ответы"""
         return self.children.exists()
+
     def __str__(self):
         if self.parent:
             return f'Ответ от {self.name} к комментарию {self.parent.id}'
