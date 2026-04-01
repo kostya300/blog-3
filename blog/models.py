@@ -128,16 +128,8 @@ class Post(models.Model):
     published = PublishedManager()
     tags = TaggableManager()
 
-    def get_sum_rating(self):
-        from django.db.models import Sum
-        result = self.ratings.aggregate(Sum('value'))['value__sum']
-        return result or 0
+    # В модели Post
 
-    def get_likes_count(self):
-        return self.ratings.filter(value=1).count()
-
-    def get_dislikes_count(self):
-        return self.ratings.filter(value=-1).count()
     class Meta:
         db_table = 'blog_post'
         ordering = ['-publish', '-created']
@@ -160,30 +152,27 @@ class Post(models.Model):
         if not self.slug:
             self.slug = unique_slugify(self, self.title)
         super().save(*args, **kwargs)
-
     def __str__(self):
         return self.title
-
-class Rating(models.Model):
-    """
-    Модель рейтинга: Лайк - Дизлайк
-    """
-    post = models.ForeignKey(to=Post, verbose_name='Запись', on_delete=models.CASCADE, related_name='ratings')
-    user = models.ForeignKey(to=User, verbose_name='Пользователь', on_delete=models.CASCADE, blank=True, null=True)
-    value = models.IntegerField(verbose_name='Значение', choices=[(1, 'Нравится'), (-1, 'Не нравится')])
-    time_create = models.DateTimeField(verbose_name='Время добавления', auto_now_add=True)
-    ip_address = models.GenericIPAddressField(verbose_name='IP Адрес')
-
+class CommentLike(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    comment = models.ForeignKey("Comment",on_delete=models.CASCADE,related_name='comment_likes')
+    created_at = models.DateTimeField(auto_now_add=True)
     class Meta:
-        unique_together = ('post', 'ip_address')
-        ordering = ('-time_create',)
-        indexes = [models.Index(fields=['-time_create', 'value'])]
-        verbose_name = 'Рейтинг'
-        verbose_name_plural = 'Рейтинги'
+        unique_together = ('user', 'comment')  # Один пользователь — один лайк
+        ordering = ['-created_at']
 
+
+class Like(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE,related_name="likes")
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    class Meta:
+        unique_together = ('post', 'user')  # Один пользователь — один лайк
+        verbose_name = 'Лайк'
+        verbose_name_plural = 'Лайки'
     def __str__(self):
-        return self.post.title
-
+        return f'{self.user.username} + {self.post.title}'
 class Comment(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments')
     parent = models.ForeignKey(

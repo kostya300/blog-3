@@ -1,3 +1,5 @@
+from urllib import request
+from django.db.models import Count, F, Prefetch
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -9,18 +11,60 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
 from .forms import EmailPostForm, CommentForm, SearchForm, PostCreateForm, PostUpdateForm, CommentCreateForm
-from .models import Post, Category, Comment, Rating
+from .models import Post, Category, Comment, Like, CommentLike
 from django.views.decorators.http import require_POST
 from taggit.models import Tag
+from django.db.models import Sum
 from django.db.models import Count, F
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-from django.db import transaction
-
-from django.db.models import Count, F, Q, Sum
-from .utils import get_comment_word
 from django.http import JsonResponse
+from .utils import get_comment_word
+from django.views import View
 
+from blog.model_loader import generate_response
+from django.views.decorators.csrf import csrf_exempt
+import json
+
+
+def llama_chat_view(request):
+    """Страница чата с LLM"""
+    return render(request, 'blog/llm/chat.html')
+
+
+# """LLaMA API view starts here"""
+@csrf_exempt
+@require_POST
+def llama_api(request):
+    """API endpoint для генерации текста"""
+    try:
+        data = json.loads(request.body)
+        user_input = data.get("message", "").strip()
+
+        if not user_input:
+            return JsonResponse({"error": "Пустой запрос"}, status=400)
+
+        # Генерация ответа
+        response_text = generate_response(user_input, max_length=300)
+        if not response_text.strip():
+            response_text = "Извините, я не могу сгенерировать ответ."
+        return JsonResponse({
+            "response": response_text
+        })
+
+
+    except json.JSONDecodeError:
+
+        return JsonResponse({"error": "Некорректный JSON"}, status=400)
+
+    except Exception as e:
+
+        print("Ошибка генерации:", str(e))  # Лог в консоль
+
+        return JsonResponse({"error": "Ошибка модели: " + str(e)}, status=500)
+
+
+# """LLaMA API view ends here"""
 
 # Главная страница на основе класса
 class PostListView(ListView):
@@ -30,7 +74,20 @@ class PostListView(ListView):
     paginate_by = 3
 
     def get_queryset(self):
-        queryset = Post.published.all()
+        # Начинаем с published
+        queryset = Post.published.annotate(
+            likes_count=Count('likes')
+        )
+
+        # Если пользователь авторизован — добавляем информацию о его лайках
+        if self.request.user.is_authenticated:
+            queryset = queryset.prefetch_related(
+                Prefetch(
+                    'likes',
+                    queryset=Like.objects.filter(user=self.request.user),
+                    to_attr='user_liked'
+                )
+            )
 
         tag_slug = self.kwargs.get('tag_slug')
         if tag_slug:
@@ -39,52 +96,59 @@ class PostListView(ListView):
             self.tag = tag
         else:
             self.tag = None
-        return queryset.prefetch_related('ratings')
+
+        return queryset  # <-- Конец get_queryset()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['tag'] = self.tag
+        context['categories'] = Category.objects.all()
+
+        # Популярные посты
         context['popular_posts'] = Post.published.annotate(
             comment_count=Count('comments')
         ).order_by('-comment_count')[:5]
+
+        # Самые просматриваемые
         context['most_viewed_posts'] = Post.published.order_by('-views')[:5]
-        context['categories'] = Category.objects.all()
 
-        # Получаем все рейтинги для постов на странице
-        posts = context["posts"]
-        post_ids = [post.id for post in posts]
-
-        ratings = Rating.objects.filter(post_id__in=post_ids).values('post_id').annotate(
-            rating_sum=Sum('value'),
-            likes=Sum('value', filter=Q(value=1)),
-            dislikes=Sum('value', filter=Q(value=-1))
-        )
-
-        # Обрабатываем NULL-значения
-        for item in ratings:
-            item['rating_sum'] = item['rating_sum'] or 0
-            item['likes'] = item['likes'] or 0
-            item['dislikes'] = item['dislikes'] or 0
-
-        # Преобразуем в словарь для быстрого доступа
-        ratings_dict = {item['post_id']: item for item in ratings}
-
-        # Добавляем к каждому посту его рейтинг
-        post_ratings = {}
-        for post in posts:
-            rating_info = ratings_dict.get(post.id, {
-                'rating_sum': 0,
-                'likes': 0,
-                'dislikes': 0
-            })
-            post_ratings[post.id] = {
-                'rating_sum': rating_info['rating_sum'],
-                'likes': rating_info['likes'],
-                'dislikes': rating_info['dislikes'],
-            }
-
-        context['post_ratings'] = post_ratings
         return context
+@require_POST
+@login_required
+def toggle_comment_like(request):
+    comment_id = request.POST.get('comment_id')
+    comment = get_object_or_404(Comment, id=comment_id)
+
+    like, created = CommentLike.objects.get_or_create(user=request.user, comment=comment)
+    if not created:
+        like.delete()
+        liked = False
+    else:
+        liked = True
+
+    likes_count = comment.comment_likes.count()
+
+    return JsonResponse({
+        'liked': liked,
+        'likes_count': likes_count
+    })
+@require_POST
+@login_required
+def toggle_like(request):
+    post_id = request.POST.get('post_id')
+    post = get_object_or_404(Post, id=post_id)
+    like, created = Like.objects.get_or_create(user=request.user, post=post)
+    if not created:
+        # Если уже лайкал — удаляем (отменяем лайк)
+        like.delete()
+        liked = False
+    else:
+        liked = True
+    likes_count = post.likes.count()
+    return JsonResponse({
+        'liked': liked,
+        'likes_count': likes_count
+    })
 
 
 class PostUpdateView(UpdateView):
@@ -148,28 +212,42 @@ class PostDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         post = self.object
-        # Расчёт рейтингов для текущего поста
-        ratings = post.ratings.aggregate(
-            rating_sum=Sum('value'),
-            likes=Sum('value', filter=Q(value=1)),
-            dislikes=Sum('value', filter=Q(value=-1))
+        # Добавляем, ставил ли текущий пользователь лайк
+        # Лайк поста
+        if self.request.user.is_authenticated:
+            context['user_liked'] = post.likes.filter(user=self.request.user).exists()
+        else:
+            context['user_liked'] = False
+
+        # Комментарии и их лайки
+        root_comments = post.comments.filter(active=True, parent__isnull=True).prefetch_related(
+            Prefetch(
+                'children',
+                queryset = Comment.objects.filter(active=True),
+                to_attr = 'children_comments'
+            )
         )
-        # Обрабатываем NULL-значения
-        rating_info = {
-            'rating_sum': ratings['rating_sum'] or 0,
-            'likes': ratings['likes'] or 0,
-            'dislikes': ratings['dislikes'] or 0,
-        }
-        root_comments = post.comments.filter(active=True, parent__isnull=True)
+        # Аннотируем количество лайков и факт лайка текущим пользователем
         for comment in root_comments:
-            comment.children_comments = comment.children.filter(active=True)
+            comment.likes_count = comment.comment_likes.count()
+            if self.request.user.is_authenticated:
+                comment.user_liked = comment.comment_likes.filter(user=self.request.user).exists()
+            else:
+                comment.user_liked = False
+
+            for child in comment.children_comments:
+                child.likes_count = child.comment_likes.count()  # ✅ Есть
+                if self.request.user.is_authenticated:
+                    child.user_liked = child.comment_likes.filter(user=self.request.user).exists()  # ✅ Есть
+                else:
+                    child.user_liked = False
 
         total_comments = post.comments.filter(active=True).count()
         post_tags_ids = post.tags.values_list('id', flat=True)
         similar_posts = Post.published.filter(tags__in=post_tags_ids).exclude(id=post.id)
         similar_posts = similar_posts.annotate(same_tags=Count('tags')).order_by('-same_tags', '-publish')[:4]
         comment_word = get_comment_word(total_comments)
-
+        context['post'] = self.object
         context.update({
             'comments': root_comments,
             'form': CommentForm(),
@@ -180,48 +258,8 @@ class PostDetailView(DetailView):
             'categories': Category.objects.all(),
             'popular_posts': Post.published.annotate(comment_count=Count('comments')).order_by('-comment_count')[:5],
             'most_viewed_posts': Post.published.order_by('-views')[:5],
-            'post_ratings': {post.id: rating_info}
         })
         return context
-
-
-class RatingCreateView(LoginRequiredMixin, View):
-    def post(self, request, *args, **kwargs):
-        post_id = request.POST.get('post_id')
-        value = int(request.POST.get('value'))
-
-        try:
-            post = Post.objects.get(id=post_id)
-            rating, created = Rating.objects.get_or_create(
-                post=post,
-                user=request.user,
-                defaults={'value': value}
-            )
-
-            if not created:
-                if rating.value == value:
-                    rating.delete()
-                else:
-                    rating.value = value
-                    rating.save()
-
-            # Пересчёт рейтингов после изменения
-            ratings = post.ratings.aggregate(
-                rating_sum=Sum('value'),
-                likes=Sum('value', filter=Q(value=1)),
-                dislikes=Sum('value', filter=Q(value=-1))
-            )
-
-            return JsonResponse({
-                'rating_sum': ratings['rating_sum'] or 0,
-                'likes': ratings['likes'] or 0,
-                'dislikes': ratings['dislikes'] or 0
-            })
-        except Post.DoesNotExist:
-            return JsonResponse({'error': 'Пост не найден'}, status=404)
-        except Exception as e:
-            return JsonResponse({'error': 'Ошибка сервера'}, status=500)
-
 
 
 def post_list_by_category(request, category_slug):

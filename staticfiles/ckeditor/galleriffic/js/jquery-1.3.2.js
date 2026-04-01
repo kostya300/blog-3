@@ -3056,7 +3056,7 @@ function bindReady(){
 			jQuery.ready();
 		}, false );
 
-	// If IE event model is used
+	// If IE event llm is used
 	} else if ( document.attachEvent ) {
 		// ensure firing before onload,
 		// maybe late but safe also for iframes
@@ -3195,7 +3195,7 @@ jQuery( window ).bind( 'unload', function(){
 		div.cloneNode(true).fireEvent("onclick");
 	}
 
-	// Figure out if the W3C box model works as expected
+	// Figure out if the W3C box llm works as expected
 	// document.body must exist before we can do this
 	jQuery(function(){
 		var div = document.createElement("div");

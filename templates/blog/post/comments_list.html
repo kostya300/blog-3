@@ -1,22 +1,33 @@
 {% load static %}
+{% load extras %}
 {% for comment in comments %}
 	<li class="comment" id="comment-{{ comment.id }}">
 		<!-- Аватар пользователя -->
 		<div class="vcard bio">
-    {% if comment.user and comment.user.profile.avatar %}
-        <img src="{{ comment.user.profile.avatar.url }}" alt="{{ comment.user.username }}" width="50" height="50" class="rounded-circle">
-    {% else %}
-        <img src="{% static 'images/default.jpg' %}" alt="Аватар" width="50" height="50" class="rounded-circle">
-    {% endif %}
-</div>
+			{% if comment.user and comment.user.profile.avatar %}
+				<img src="{{ comment.user.profile.avatar.url }}" alt="{{ comment.user.username }}" width="50"
+				     height="50" class="rounded-circle">
+			{% else %}
+				<img src="{% static 'images/default.jpg' %}" alt="Аватар" width="50" height="50" class="rounded-circle">
+			{% endif %}
+		</div>
 
 		<div class="comment-body">
 			<!-- Имя автора комментария -->
 			<h3>{{ comment.name }}</h3>
 			<!-- Дата создания -->
 			<div class="meta">{{ comment.created|date:"d M Y, H:i" }}</div>
-			<!-- Текст комментария с переносами строк -->
-			<p>{{ comment.body }}</p>
+			<!-- Кнопка лайка -->
+			<p class="comment-reactions">
+				<button class="like-comment-btn"
+				        data-comment-id="{{ comment.id }}"
+				        data-liked="{% if comment.user_liked %}true{% else %}false{% endif %}">
+					<span class="heart-icon">
+						{% if comment.user_liked %}❤{% else %}♡{% endif %}
+					</span>
+					<span class="likes-count">{{ comment.likes_count }}</span>
+				</button>
+			</p>
 
 			<!-- Кнопка "Ответить" -->
 			<p><a href="#" class="reply" data-comment-id="{{ comment.id }}">Ответить</a></p>

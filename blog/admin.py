@@ -1,9 +1,9 @@
 from django.contrib import admin
 
-from blog.models import Post, Comment,Category,Rating
+from blog.models import Post, Comment,Category
 from django_mptt_admin.admin import DjangoMpttAdmin
 
-# Register your models here.
+# Register your llm here.
 @admin.register(Category)
 class CategoryAdmin(DjangoMpttAdmin):
     """
@@ -26,9 +26,3 @@ class CommentAdmin(admin.ModelAdmin):
     list_display = ['name', 'email', 'post', 'created', 'active']
     list_filter = ['active', 'created', 'updated']
     search_fields = ['name', 'email', 'body']
-@admin.register(Rating)
-class RatingAdmin(admin.ModelAdmin):
-    """
-    Админ-панель модели рейтинга
-    """
-    pass

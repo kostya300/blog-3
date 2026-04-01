@@ -25,5 +25,9 @@ urlpatterns = [
     path('post/create/', views.PostCreateView.as_view(), name='post_create'),
     path('post/<slug:slug>/update/', views.PostUpdateView.as_view(), name='post_update'),
     path('travel/', views.travel, name='travel'),
-    path('rating/', views.RatingCreateView.as_view(), name='rating'),
+    path('llm/', views.llama_chat_view, name='llm_chat'),
+    path('llm/api/', views.llama_api, name='llm_api'),
+    path('like/', views.toggle_like, name='toggle_like'),
+    path('like-comment/', views.toggle_comment_like, name='toggle_comment_like'),
+
 ]

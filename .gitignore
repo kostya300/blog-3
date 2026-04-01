@@ -1,19 +1,49 @@
+# Кэши Python
 __pycache__/
 *.py[cod]
-# Кеши и временные файлы
+*$py.class
+.pytest_cache/
+.coverage
 cache/
 tmp/
+
+# Виртуальные окружения Python
+.venv/
+.venv
+venv/
+env/
+ENV/
 
 # Файлы IDE
 .idea/
 .vscode/
-
 
 # Пакеты и сборки
 dist/
 build/
 *.egg-info/
 
-# Тестирование
-.coverage
-.pytest_cache/
+# Модели ИИ
+*.bin
+*.safetensors
+*.pt
+*.pth
+*.ckpt
+model/
+models/
+llm/
+checkpoints/
+*.h5
+*.pb
+*.log
+*.tmp
+*.temp
+
+# Кэш Hugging Face
+.cache/
+.cache/huggingface/
+
+# Файлы ОС
+.DS_Store
+Thumbs.db
+desktop.ini
