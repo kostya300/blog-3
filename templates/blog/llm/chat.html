@@ -1,0 +1,123 @@
+{% extends "blog/base.html" %}
+{% load static %}
+{% block css %}
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+{% endblock %}
+{% block content %}
+	    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f4f4f4; }
+        .chat-box {
+            width: 80%;
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            padding: 20px;
+            min-height: 700px;
+        }
+        .messages {
+            height: 600px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            background: #fafafa;
+        }
+        .message {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 8px;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+        .user { background: #DCF8C6; margin-left: auto; text-align: right; }
+        .ai { background: #E2E2E2; }
+        .input-area { display: flex; gap: 10px; }
+        input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 20px;
+            background: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .typing { color: #888; font-style: italic; margin: 5px 0; }
+    </style>
+<body>
+    <div class="chat-box">
+        <h2>💬 Генератор текста</h2>
+        <div class="messages" id="messages"></div>
+        <div class="typing" id="typing" style="display: none;">думает...</div>
+        <div class="input-area">
+            <input type="text" id="user-input" placeholder="Введите запрос..." autofocus>
+            <button onclick="sendMessage()">Отправить</button>
+        </div>
+    </div>
+
+    <script>
+        function sendMessage() {
+            const input = $('#user-input');
+            const message = input.val().trim();
+            if (!message) return;
+
+            addMessage("Вы: " + message, 'user');
+            input.val('');
+            $('#typing').show();
+
+            $.ajaxSetup({
+                beforeSend: function(xhr, settings) {
+                    if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                        xhr.setRequestHeader("X-CSRFToken", $('input[name=csrfmiddlewaretoken]').val());
+                    }
+                }
+            });
+
+            $.post({
+                url: '{% url "blog:llm_api" %}',
+                data: JSON.stringify({ message: message }),
+                contentType: 'application/json',
+                success: function(data) {
+                    addMessage("AI: " + data.response, 'ai');
+                },
+                error: function(xhr) {
+                    console.error("Ошибка:", xhr);
+                    let errorMsg = "Неизвестная ошибка";
+                    try {
+                        errorMsg = xhr.responseJSON?.error || xhr.responseText || "Ошибка соединения";
+                    } catch (e) {}
+                    addMessage("Ошибка: " + errorMsg, 'ai');
+                },
+                complete: function() {
+                    $('#typing').hide();
+                }
+            });
+        }
+
+        function addMessage(text, sender) {
+            const messages = $('#messages');
+            const div = $('<div>').addClass('message ' + sender).text(text);
+            messages.append(div);
+            messages.scrollTop(messages[0].scrollHeight);
+        }
+
+        $(document).ready(function () {
+            // Добавим CSRF токен скрыто
+            $('body').append('<input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">');
+        });
+
+        $('#user-input').on('keypress', function(e) {
+            if (e.which === 13) sendMessage();
+        });
+    </script>
+</body>
+{% endblock %}
+

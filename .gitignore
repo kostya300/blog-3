@@ -31,14 +31,13 @@ build/
 *.ckpt
 model/
 models/
-llm/
 checkpoints/
 *.h5
 *.pb
 *.log
 *.tmp
 *.temp
-
+Phi-3-mini-4k-instruct/
 # Кэш Hugging Face
 .cache/
 .cache/huggingface/
