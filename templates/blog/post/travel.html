@@ -1,7 +1,7 @@
 {% extends 'blog/base.html' %}
 {% load static %}
 {% block content %}
-	<div class="sticky-button" style=" position: fixed;
+    <div class="sticky-button" style=" position: fixed;
   bottom: 20px; /* отступ от низа окна */
   right: 420px;  /* отступ от правого края окна */
   z-index: 1000; /* чтобы кнопка была поверх других элементов */
@@ -11,54 +11,62 @@
   border: none;
   border-radius: 5px;
   cursor: pointer;">
-		{% if request.user.is_authenticated %}
-			<a href="{% url 'blog:post_create' %}" class="btn btn-primary">Добавить пост</a>
-		{% endif %}
-	</div>
-	{% for post in posts %}
-		<div class="col-md-12">
+        {% if request.user.is_authenticated %}
+            <a href="{% url 'blog:post_create' %}" class="btn btn-primary">Добавить пост</a>
+        {% endif %}
+    </div>
+    {% for post in posts %}
+        <div class="col-md-12">
 
-			<div class="blog-entry-2 ftco-animate">
+            <div class="blog-entry-2 ftco-animate">
 
-				{% if post.image %}
-					<a href="{{ post.get_absolute_url }}" class="img"
-					   style="background-image: url(
-							   {{ post.image.url }});"></a>
-				{% else %}
-					<a href="{{ post.get_absolute_url }}" class="img"
-					   style="background-image: url({% static 'images/image_1.jpg' %});"></a>
-				{% endif %}
-				<div class="text pt-4">
-					<h3 class="mb-4"><a href="{{ post.get_absolute_url }}">{{ post.title|safe }}</a></h3>
-					<p class="mb-4">{{ post.body|safe|truncatewords_html:'30'|linebreaks }}</p>
-					<div class="author mb-4 d-flex align-items-center">
-						<a href="#" class="img"></a>
-						<div class="ml-3 info">
-							<span>Опубликовано</span>
-							<h3><a href="#">{{ post.author }}</a>, <span>{{ post.publish|date:"F d, Y" }}</span></h3>
-						</div>
-					</div>
-					<div class="meta-wrap d-md-flex align-items-center">
-						<div class="half order-md-last text-md-right">
-							<p class="meta">
-								<span><i class="icon-heart"></i>{{ post.likes.count }}</span>
-								<span><i class="icon-eye"></i>{{ post.views }}</span>
-								<span><i class="icon-comment"></i>{{ post.comments.count }}</span>
-							</p>
-						</div>
-						<div class="half">
-							<p><a href="{{ post.get_absolute_url }}" class="btn btn-primary p-3 px-xl-4 py-xl-3">Продолжать
-								Чтение</a></p>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
+                {% if post.image %}
+                    <a href="{{ post.get_absolute_url }}" class="img"
+                       style="background-image: url(
+                               {{ post.image.url }});"></a>
+                {% else %}
+                    <a href="{{ post.get_absolute_url }}" class="img"
+                       style="background-image: url({% static 'images/image_1.jpg' %});"></a>
+                {% endif %}
+                <div class="text pt-4">
+                    <h3 class="mb-4"><a href="{{ post.get_absolute_url }}">{{ post.title|safe }}</a></h3>
+                    <p class="mb-4">{{ post.body|safe|truncatewords_html:'30'|linebreaks }}</p>
+                    <div class="author mb-4 d-flex align-items-center">
+                        <div class="vcard bio">
+                            {% if post.author.profile.avatar %}
+                                <img src="{{ post.author.profile.avatar.url }}" alt="{{ post.author }}" width="50"
+                                     height="50" class="rounded-circle">
+                            {% else %}
+                                <img src="/static/images/avatar.jpg" alt="Author" class="img-fluid rounded-circle"
+                                     width="100" height="100">
+                            {% endif %}
+                        </div>
+                        <div class="ml-3 info">
+                            <span>Опубликовано</span>
+                            <h3><a href="#">{{ post.author }}</a>, <span>{{ post.publish|date:"F d, Y" }}</span></h3>
+                        </div>
+                    </div>
+                    <div class="meta-wrap d-md-flex align-items-center">
+                        <div class="half order-md-last text-md-right">
+                            <p class="meta">
+                                <span><i class="icon-heart"></i>{{ post.likes.count }}</span>
+                                <span><i class="icon-eye"></i>{{ post.views }}</span>
+                                <span><i class="icon-comment"></i>{{ post.comments.count }}</span>
+                            </p>
+                        </div>
+                        <div class="half">
+                            <p><a href="{{ post.get_absolute_url }}" class="btn btn-primary p-3 px-xl-4 py-xl-3">Продолжать
+                                Чтение</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-	{% endfor %}
-	<div class="col">
-		<div class="block-27">
-			{% include 'blog/post/pagination.html' with page=posts %}
-		</div>
-	</div>
+    {% endfor %}
+    <div class="col">
+        <div class="block-27">
+            {% include 'blog/post/pagination.html' with page=posts %}
+        </div>
+    </div>
 {% endblock %}
