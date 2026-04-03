@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'drf_spectacular',
     'mptt',
+    'django_dump_load_utf8',
     'django_mptt_admin',
     'debug_toolbar',
     'django_recaptcha',
@@ -113,7 +114,6 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
 )
 WSGI_APPLICATION = "Course_FirstProject.wsgi.application"
-
 
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
@@ -205,9 +205,9 @@ def show_toolbar(request):
 
 
 DEBUG_TOOLBAR_CONFIG = {
-       'SHOW_TOOLBAR_CALLBACK': show_toolbar,
-       'IS_RUNNING_TESTS': any('test' in arg for arg in sys.argv),
-   }
+    'SHOW_TOOLBAR_CALLBACK': show_toolbar,
+    'IS_RUNNING_TESTS': any('test' in arg for arg in sys.argv),
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
@@ -263,7 +263,8 @@ CKEDITOR_5_CONFIGS = {
             'outdent', 'indent',
             '|', 'bold', 'italic', 'link', 'underline', 'strikethrough',
             '|', 'codeBlock', 'sourceEditing',
-            '|', 'insertImage', 'uploadImage', 'imageTextAlternative', 'imageStyle:alignLeft', 'imageStyle:alignCenter', 'imageStyle:alignRight',
+            '|', 'insertImage', 'uploadImage', 'imageTextAlternative', 'imageStyle:alignLeft', 'imageStyle:alignCenter',
+            'imageStyle:alignRight',
             '|', 'undo', 'redo'
         ],
         'image': {
