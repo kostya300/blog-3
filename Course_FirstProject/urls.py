@@ -34,7 +34,7 @@ urlpatterns = [
     path('accounts/', include('django.contrib.auth.urls')),
     path('oauth/', include('social_django.urls', namespace='social')),
     path('api/', include('blog_api.urls')),
-    path("ckeditor",include( "ckeditor_uploader.urls")),
+    path('ckeditor5/', include('django_ckeditor_5.urls')),
     path('api-auth/', include('rest_framework.urls')),
 ]
 

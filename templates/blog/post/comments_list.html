@@ -15,6 +15,7 @@
 		<div class="comment-body">
 			<!-- Имя автора комментария -->
 			<h3>{{ comment.name }}</h3>
+            <p>{{ comment.body|safe}} </p><!-- Тело комментария -->
 			<!-- Дата создания -->
 			<div class="meta">{{ comment.created|date:"d M Y, H:i" }}</div>
 			<!-- Кнопка лайка -->

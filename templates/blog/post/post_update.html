@@ -6,7 +6,7 @@
             <h5 class="mb-0">Редактирование статьи</h5>
         </div>
         <div class="card-body">
-            <h6 class="text-muted mb-4">«{{ post.title }}»</h6>
+            <h6 class="text-muted mb-4">«{{ post.title|safe }}»</h6>
 
             <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
@@ -15,7 +15,7 @@
                 <div class="mb-3">
                     <label for="{{ form.title.id_for_label }}" class="form-label">Заголовок</label>
                     {{ form.title }}
-                    {{ form.media }}
+
                     {% if form.title.errors %}
                         <div class="text-danger small">{{ form.title.errors }}</div>
                     {% endif %}
@@ -55,6 +55,7 @@
                 <div class="mb-3">
                     <label for="{{ form.body.id_for_label }}" class="form-label">Текст статьи</label>
                     {{ form.body }}
+                    {{ form.media }}
                     {% if form.body.errors %}
                         <div class="text-danger small">{{ form.body.errors }}</div>
                     {% endif %}

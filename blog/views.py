@@ -3,6 +3,7 @@ from django.db.models import Count, F, Prefetch
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.contrib.auth.mixins import UserPassesTestMixin
 from django.views.generic import ListView, DetailView, CreateView, UpdateView
 from django.views.generic import View
 from django.contrib.auth.decorators import login_required
@@ -22,7 +23,7 @@ from django.http import JsonResponse
 from .utils import get_comment_word
 from django.views import View
 
-from blog.model_loader import generate_response
+
 from django.views.decorators.csrf import csrf_exempt
 import json
 
@@ -33,36 +34,6 @@ def llama_chat_view(request):
 
 
 # """LLaMA API view starts here"""
-@csrf_exempt
-@require_POST
-def llama_api(request):
-    """API endpoint для генерации текста"""
-    try:
-        data = json.loads(request.body)
-        user_input = data.get("message", "").strip()
-
-        if not user_input:
-            return JsonResponse({"error": "Пустой запрос"}, status=400)
-
-        # Генерация ответа
-        response_text = generate_response(user_input, max_length=300)
-        if not response_text.strip():
-            response_text = "Извините, я не могу сгенерировать ответ."
-        return JsonResponse({
-            "response": response_text
-        })
-
-
-    except json.JSONDecodeError:
-
-        return JsonResponse({"error": "Некорректный JSON"}, status=400)
-
-    except Exception as e:
-
-        print("Ошибка генерации:", str(e))  # Лог в консоль
-
-        return JsonResponse({"error": "Ошибка модели: " + str(e)}, status=500)
-
 
 # """LLaMA API view ends here"""
 
@@ -151,7 +122,7 @@ def toggle_like(request):
     })
 
 
-class PostUpdateView(UpdateView):
+class PostUpdateView(UserPassesTestMixin,UpdateView):
     """
     Представление: обновления материала на сайте
     """
@@ -160,14 +131,19 @@ class PostUpdateView(UpdateView):
     context_object_name = 'post'
     form_class = PostUpdateForm
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['title'] = f'Обновление статьи: {self.object.title}'
-        return context
+    def test_func(self):
+        post = self.get_object()
+        return self.request.user == post.author
 
-    def form_valid(self, form):
-        return super().form_valid(form)
-
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        if not self.request.user.is_superuser:
+            # Убираем возможность менять автора, если не суперпользователь
+            self.object = self.get_object()
+            if 'instance' in kwargs:
+                kwargs['instance'] = self.object
+            kwargs['initial'] = {'author': self.object.author}
+        return kwargs
 
 class PostCreateView(CreateView):
     """

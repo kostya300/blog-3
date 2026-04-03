@@ -1,6 +1,7 @@
 from django import forms
 from .models import Comment, Post
-from ckeditor.widgets import CKEditorWidget
+from django_ckeditor_5.widgets import CKEditor5Widget  # Импортируем новый виджет
+
 
 class EmailPostForm(forms.Form):
     name = forms.CharField(
@@ -42,10 +43,13 @@ class EmailPostForm(forms.Form):
 
 
 class SearchForm(forms.Form):
-    query = forms.CharField(label='', widget=forms.TextInput(attrs={
-        'class': 'form-control',
-        'placeholder': 'Поиск'
-    }))
+    query = forms.CharField(
+        label='',
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Поиск'
+        })
+    )
 
 
 class CommentForm(forms.ModelForm):
@@ -77,12 +81,13 @@ class CommentForm(forms.ModelForm):
             'body': 'Сообщение'
         }
 
+
 class CommentCreateForm(forms.ModelForm):
     parent = forms.IntegerField(widget=forms.HiddenInput(), required=False)
 
     class Meta:
         model = Comment
-        fields = ('name', 'body')  # ❌ убрали 'email'
+        fields = ('name', 'body')
         widgets = {
             'name': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -100,7 +105,6 @@ class CommentCreateForm(forms.ModelForm):
         self.user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
 
-        # Если пользователь авторизован — подставляем имя
         if self.user and self.user.is_authenticated:
             self.fields['name'].initial = self.user.get_full_name() or self.user.username
             self.fields['name'].widget.attrs['readonly'] = True
@@ -109,13 +113,12 @@ class CommentCreateForm(forms.ModelForm):
         comment = super().save(commit=False)
         comment.post = self.post
 
-        # Подставляем email только если есть user, иначе оставляем пустым
         if self.user and self.user.is_authenticated:
             comment.user = self.user
             comment.name = self.user.get_full_name() or self.user.username
             comment.email = self.user.email
         else:
-            comment.email = ''  # или None
+            comment.email = ''
 
         parent_id = self.cleaned_data.get("parent")
         if parent_id:
@@ -124,45 +127,51 @@ class CommentCreateForm(forms.ModelForm):
         if commit:
             comment.save()
         return comment
-class PostCreateForm(forms.ModelForm):
-    title = forms.CharField(widget=CKEditorWidget(config_name='awesome_ckeditor'))
-    class Meta:
-        model = Post
-        fields = ('title',
-                  'category',
-                  'author',
-                  'body',
-                  'status',
-                  'image',
-                  'tags')
 
+
+class PostCreateForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
-        """
-        Обновление стилей формы под Bootstrap
-        """
         super().__init__(*args, **kwargs)
+        # Применяем виджеты и классы
+        self.fields["body"].required = False  # Обходная проверка, если CKEditor5 не отправляет пустые строки
         for field in self.fields:
-            self.fields[field].widget.attrs.update({
-                'class': 'form-control',
-                'autocomplete': 'off',
-            })
-            # Для тегов — особый класс, если используется Taggit
-            self.fields['tags'].widget.attrs.update({
-                'data-role': 'tagsinput',
-                'class': 'form-control tags-input'
-            })
-class PostUpdateForm(forms.ModelForm):
-    title = forms.CharField(widget=CKEditorWidget(config_name='awesome_ckeditor'))
-    class Meta:
-        model = Post
-        fields = PostCreateForm.Meta.fields + ('updater', 'fixed')
-    def __init__ (self,*args,**kwargs):
-        super().__init__(*args, **kwargs)
-        for field in self.fields:
-            self.fields[field].widget.attrs.update({
-                'class': 'form-control',
-            })
+            if field != "title" and field != "body":  # title и body обрабатываются отдельно
+                self.fields[field].widget.attrs.update({
+                    'class': 'form-control',
+                    'autocomplete': 'off',
+                })
         self.fields['tags'].widget.attrs.update({
             'data-role': 'tagsinput',
-            "class":'form-control tags-input',
+            'class': 'form-control tags-input'
         })
+
+    class Meta:
+        model = Post
+        fields = (
+            'title',
+            'category',
+            'author',
+            'body',
+            'status',
+            'image',
+            'tags'
+        )
+        widgets = {
+            'title': CKEditor5Widget(config_name='default'),  # Для заголовка — упрощённый редактор
+            'body': CKEditor5Widget(config_name='extends'),   # Для текста — расширенный
+            'category': forms.Select(attrs={'class': 'form-control'}),
+            'author': forms.Select(attrs={'class': 'form-control'}),
+            'status': forms.Select(attrs={'class': 'form-control'}),
+            'image': forms.FileInput(attrs={'class': 'form-control'}),
+        }
+
+
+class PostUpdateForm(PostCreateForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Добавляем updater и fixed
+        self.fields['updater'].widget.attrs.update({'class': 'form-control'})
+        self.fields['fixed'].widget.attrs.update({'class': 'form-check-input'})
+
+    class Meta(PostCreateForm.Meta):
+        fields = PostCreateForm.Meta.fields + ('updater', 'fixed')

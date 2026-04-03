@@ -1,10 +1,17 @@
-
-    <p class="date">
-        Дата публикации {{ post.publish }} от {{ post.author }}
-    </p>
-    <p>
-        <a href="{% url 'blog:post_share' post.id %}" style="display: flex;background-color: #1eafed;color: white;padding: 10px 15px;border-radius: 4px
-;">
-	        Поделится записью
-        </a>
-    </p>
+{% load static %}
+<p class="date">
+    Дата публикации {{ post.publish }} от {{ post.author }}
+</p>
+<!-- Аватар пользователя -->
+<div class="vcard bio">
+    {% if post.author.profile.avatar %}
+        <img src="{{ post.author.profile.avatar.url }}" alt="{{ post.author }}" width="50" height="50" class="rounded-circle">
+    {% else %}
+        <img src="/static/images/avatar.jpg" alt="Author" class="img-fluid rounded-circle" width="100" height="100">
+    {% endif %}
+</div>
+<p>
+    <a href="{% url 'blog:post_share' post.id %}" style="display: flex;background-color: #1eafed;color: white;padding: 10px 15px;border-radius: 4px;">
+        Поделится записью
+    </a>
+</p>

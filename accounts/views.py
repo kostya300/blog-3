@@ -12,6 +12,7 @@ from django.contrib.auth.views import PasswordChangeView
 from django.contrib.messages.views import SuccessMessageMixin
 from .models import Profile
 from django.conf import settings
+from django.contrib.auth.backends import ModelBackend
 class ProfileDetailView(generic.DetailView):
     model = Profile
     context_object_name = 'profile'
@@ -110,8 +111,18 @@ class SignUpView(generic.CreateView):
         # Сохраняем пользователя
         user = form.save()
 
+        # Устанавливаем backend вручную
+        user.backend = 'django.contrib.auth.backends.ModelBackend'
+
         # Автоматически авторизуем пользователя после регистрации
         login(self.request, user)
+
+        # Обработка remember_me
+        remember_me = form.cleaned_data.get('remember_me')
+        if remember_me:
+            self.request.session.set_expiry(1209600)  # 2 недели
+        else:
+            self.request.session.set_expiry(0)
 
         username = form.cleaned_data.get('username')
         messages.success(

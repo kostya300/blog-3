@@ -56,9 +56,7 @@ INSTALLED_APPS = [
     'django_mptt_admin',
     'debug_toolbar',
     'django_recaptcha',
-    # для работы формы
-    'ckeditor_uploader',
-    'ckeditor'
+    'django_ckeditor_5',
 ]
 
 SITE_ID = 1
@@ -123,7 +121,7 @@ WSGI_APPLICATION = "Course_FirstProject.wsgi.application"
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'blog_2',
+        'NAME': 'blog',
         'USER': 'blog_2',
         'PASSWORD': '21',
         'HOST': '127.0.0.1',
@@ -207,9 +205,9 @@ def show_toolbar(request):
 
 
 DEBUG_TOOLBAR_CONFIG = {
-
-    "IS_RUNNING_TESTS": any('test' in arg for arg in sys.argv),
-}
+       'SHOW_TOOLBAR_CALLBACK': show_toolbar,
+       'IS_RUNNING_TESTS': any('test' in arg for arg in sys.argv),
+   }
 
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
@@ -237,15 +235,55 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 LOGIN_URL = '/accounts/login/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-CKEDITOR_UPLOAD_PATH = "uploads/"
-CKEDITOR_CONFIGS = {
-    'awesome_ckeditor': {
-        'toolbar': 'full',
-        'height:': 300,
-    },
-}
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+# Конфигурация CKEditor 5
+CKEDITOR_5_CONFIGS = {
+    'default': {
+        'toolbar': [
+            'heading', '|',
+            'bold', 'italic', 'link', 'underline', 'strikethrough',
+            '|', 'outdent', 'indent', '|', 'bulletedList', 'numberedList', 'blockQuote',
+            '|', 'imageUpload', 'insertImage', 'imageTextAlternative', 'imageStyle:full', 'imageStyle:side',
+            '|', 'undo', 'redo'
+        ],
+        'height': 300,
+        'width': '100%',
+        'removePlugins': ['Title'],
+        'language': 'ru',
+    },
+    'extends': {
+        'blockToolbar': [
+            'paragraph', 'heading1', 'heading2', 'heading3',
+            '|', 'bulletedList', 'numberedList',
+            '|', 'blockQuote',
+        ],
+        'toolbar': [
+            'heading', '|',
+            'outdent', 'indent',
+            '|', 'bold', 'italic', 'link', 'underline', 'strikethrough',
+            '|', 'codeBlock', 'sourceEditing',
+            '|', 'insertImage', 'uploadImage', 'imageTextAlternative', 'imageStyle:alignLeft', 'imageStyle:alignCenter', 'imageStyle:alignRight',
+            '|', 'undo', 'redo'
+        ],
+        'image': {
+            'toolbar': [
+                'imageTextAlternative', '|', 'imageStyle:alignLeft', 'imageStyle:alignCenter', 'imageStyle:alignRight'
+            ],
+            'styles': ['full', 'side', 'alignLeft', 'alignCenter', 'alignRight']
+        },
+        'table': {
+            'contentToolbar': ['tableColumn', 'tableRow', 'mergeTableCells', 'tableProperties', 'tableCellProperties']
+        },
+        'height': 300,
+        'width': '100%',
+    },
+}
+
+CKEDITOR_5_UPLOAD_PATH = "uploads/"  # путь для загрузки изображений
+CKEDITOR_5_IMAGE_ALLOW_EXTENSIONS = ["jpg", "jpeg", "png", "gif", "webp"]
+CKEDITOR_5_FILE_ALLOW_EXTENSIONS = ["pdf", "txt", "zip"]
+
 SESSION_COOKIE_AGE = 1209600
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_DOMAIN = None

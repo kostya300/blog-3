@@ -37,7 +37,8 @@ checkpoints/
 *.log
 *.tmp
 *.temp
-Phi-3-mini-4k-instruct/
+ /blog/llm/*
+ !/blog/llm/.gitkeep
 # Кэш Hugging Face
 .cache/
 .cache/huggingface/

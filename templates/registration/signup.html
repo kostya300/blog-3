@@ -184,7 +184,7 @@ button {
             <ion-icon name="mail"></ion-icon>
             </span>
 				{{ form.email }}
-				<label for="{{ form.email.id_for_label }}">Email</label>
+				<label for="{{ form.email.id_for_label }}"></label>
 				{% if form.email.errors %}
 					<div class="error">{{ form.email.errors }}</div>
 				{% endif %}
@@ -196,7 +196,7 @@ button {
             <ion-icon name="person"></ion-icon>
                 </span>
 				{{ form.username }}
-				<label for="{{ form.username.id_for_label }}">Имя пользователя</label>
+				<label for="{{ form.username.id_for_label }}"></label>
 				{% if form.username.errors %}
 					<div class="error">{{ form.username.errors }}</div>
 				{% endif %}
@@ -208,7 +208,7 @@ button {
             <ion-icon name="lock-closed"></ion-icon>
                 </span>
 				{{ form.password1 }}
-				<label for="{{ form.password1.id_for_label }}">Пароль</label>
+				<label for="{{ form.password1.id_for_label }}"></label>
 				{% if form.password1.errors %}
 					<div class="error">{{ form.password1.errors }}</div>
 				{% endif %}
@@ -220,7 +220,7 @@ button {
             <ion-icon name="lock-open"></ion-icon>
                 </span>
 				{{ form.password2 }}
-				<label for="{{ form.password2.id_for_label }}">Подтверждение пароля</label>
+				<label for="{{ form.password2.id_for_label }}"></label>
 				{% if form.password2.errors %}
 					<div class="error">{{ form.password2.errors }}</div>
 				{% endif %}

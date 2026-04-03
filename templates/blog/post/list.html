@@ -3,175 +3,180 @@
 {% load static %}
 
 {% block css %}
-	<link rel="stylesheet" href="{% static 'css/open-iconic-bootstrap.min.css' %}">
-	<link rel="stylesheet" href="{% static 'css/animate.css' %}">
-	<link rel="stylesheet" href="{% static 'css/owl.carousel.min.css' %}">
-	<link rel="stylesheet" href="{% static 'css/owl.theme.default.min.css' %}">
-	<link rel="stylesheet" href="{% static 'css/magnific-popup.css' %}">
-	<link rel="stylesheet" href="{% static 'css/aos.css' %}">
-	<link rel="stylesheet" href="{% static 'css/ionicons.min.css' %}">
-	<link rel="stylesheet" href="{% static 'css/bootstrap-datepicker.css' %}">
-	<link rel="stylesheet" href="{% static 'css/jquery.timepicker.css' %}">
-	<link rel="stylesheet" href="{% static 'css/flaticon.css' %}">
-	<link rel="stylesheet" href="{% static 'css/icomoon.css' %}">
-	<link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/open-iconic-bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/animate.css' %}">
+    <link rel="stylesheet" href="{% static 'css/owl.carousel.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/owl.theme.default.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/magnific-popup.css' %}">
+    <link rel="stylesheet" href="{% static 'css/aos.css' %}">
+    <link rel="stylesheet" href="{% static 'css/ionicons.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/bootstrap-datepicker.css' %}">
+    <link rel="stylesheet" href="{% static 'css/jquery.timepicker.css' %}">
+    <link rel="stylesheet" href="{% static 'css/flaticon.css' %}">
+    <link rel="stylesheet" href="{% static 'css/icomoon.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
 {% endblock %}
 
 {% block content %}
-	<style>
-		.like-btn {
-			text-decoration: none;
-			outline: none;
-			box-shadow: none;
-			padding: 0;
-			background: none;
-			border: none;
-			display: inline-flex;
-			align-items: center;
-			gap: 6px;
-		}
-		.like-btn:hover, .like-btn:focus {
-			text-decoration: none;
-			color: inherit;
-		}
-		.like-btn .heart-icon {
-			font-size: 1.5em;
-			transition: transform 0.2s ease;
-			color: #ccc;
-		}
-		.like-btn.liked .heart-icon {
-			color: rgb(244, 67, 54) !important;
-			transform: scale(1.2);
-		}
-	</style>
+    <style>
+        .like-btn {
+            text-decoration: none;
+            outline: none;
+            box-shadow: none;
+            padding: 0;
+            background: none;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
 
-	<div class="col-xl-16 py-5 px-md-5">
-		<div class="row pt-md-4">
-			{% cache 300 "general_list" request.get_full_path %}
-				{% for post in posts %}
-					<div class="col-md-12">
-						<div class="blog-entry ftco-animate d-md-flex">
-							{% if post.image %}
-								<a href="{{ post.get_absolute_url }}" class="img img-2"
-								   style="background-image: url({{ post.image.url }});"></a>
-							{% else %}
-								<a href="{{ post.get_absolute_url }}" class="img img-2"
-								   style="background-image: url({% static 'images/image_1.jpg' %});"></a>
-							{% endif %}
+        .like-btn:hover, .like-btn:focus {
+            text-decoration: none;
+            color: inherit;
+        }
 
-							<div class="text text-2 pl-md-4">
-								<h3 class="mb-2"><a href="{{ post.get_absolute_url }}">{{ post.title|safe }}</a></h3>
+        .like-btn .heart-icon {
+            font-size: 1.5em;
+            transition: transform 0.2s ease;
+            color: #ccc;
+        }
 
-								<div class="meta-wrap">
-									<p class="meta">
-										<span><i class="icon-calendar mr-2"></i>{{ post.publish|date:"F d, Y" }}</span>
-										<span><a href="#"><i class="icon-folder-o mr-2"></i>#{{ post.tags.all|join:', ' }}</a></span>
-										<span><i class="icon-comment2 mr-2"></i>{{ post.comments.count }} комментариев</span>
-									</p>
+        .like-btn.liked .heart-icon {
+            color: rgb(244, 67, 54) !important;
+            transform: scale(1.2);
+        }
+    </style>
 
-									<!-- Кнопка лайка -->
-									<div class="post-reactions mt-4 mb-5 text-center">
-										<button class="like-btn btn btn-link p-0" data-post-id="{{ post.id }}">
+    <div class="col-xl-16 py-5 px-md-5">
+        <div class="row pt-md-4">
+            {% cache 300 "general_list" request.get_full_path %}
+                {% for post in posts %}
+                    <div class="col-md-12">
+                        <div class="blog-entry ftco-animate d-md-flex">
+                            {% if post.image %}
+                                <a href="{{ post.get_absolute_url }}" class="img img-2"
+                                   style="background-image: url({{ post.image.url }});"></a>
+                            {% else %}
+                                <a href="{{ post.get_absolute_url }}" class="img img-2"
+                                   style="background-image: url({% static 'images/image_1.jpg' %});"></a>
+                            {% endif %}
+
+                            <div class="text text-2 pl-md-4">
+                                <h3 class="mb-4"><a href="{{ post.get_absolute_url }}">{{ post.title|safe }}</a></h3>
+                                <p class="mb-4">{{ post.body|safe|truncatewords_html:'20'|linebreaks }}</p>
+                                <div class="meta-wrap">
+                                    <p class="meta">
+                                        <span><i class="icon-calendar mr-2"></i>{{ post.publish|date:"F d, Y" }}</span>
+                                        <span><a href="#"><i
+                                                class="icon-folder-o mr-2"></i>#{{ post.tags.all|join:', ' }}</a></span>
+                                        <span><i
+                                                class="icon-comment2 mr-2"></i>{{ post.comments.count }} комментариев</span>
+                                    </p>
+
+                                    <!-- Кнопка лайка -->
+                                    <div class="post-reactions mt-4 mb-5 text-center">
+                                        <button class="like-btn btn btn-link p-0" data-post-id="{{ post.id }}">
 											<span class="heart-icon"
-													style="color: {% if user.is_authenticated and post.user_liked %}rgb(244, 67, 54){% else %}#ccc{% endif %};">
-												{% if user.is_authenticated and post.user_liked %}❤{% else %}♡{% endif %}
+                                                  style="color: {% if user.is_authenticated and post.user_liked %}rgb(244, 67, 54){% else %}#ccc{% endif %};">
+												{% if user.is_authenticated and post.user_liked %}❤{% else %}
+                                                    ♡{% endif %}
 											</span>
-											<span class="likes-count">{{ post.likes.count }}</span>
-										</button>
-									</div>
-								</div>
+                                            <span class="likes-count">{{ post.likes.count }}</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <p><a href="{{ post.get_absolute_url|safe }}" class="btn-custom">Подробнее <span
+                                        class="ion-ios-arrow-forward"></span></a></p>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endcache %}
+        </div>
 
-								<p class="mb-4">{{ post.body|linebreaks|truncatewords_html:30|safe }}</p>
-								<p><a href="{{ post.get_absolute_url|safe }}" class="btn-custom">Подробнее <span class="ion-ios-arrow-forward"></span></a></p>
-							</div>
-						</div>
-					</div>
-				{% endfor %}
-			{% endcache %}
-		</div>
+        <div class="row">
+            <div class="col">
+                <div class="block-27">
+                    {% include 'blog/post/pagination.html' with page=page_obj %}
+                </div>
+            </div>
+        </div>
+    </div>
 
-		<div class="row">
-			<div class="col">
-				<div class="block-27">
-					{% include 'blog/post/pagination.html' with page=page_obj %}
-				</div>
-			</div>
-		</div>
-	</div>
+    <script>
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
 
-	<script>
-		function getCookie(name) {
-			let cookieValue = null;
-			if (document.cookie && document.cookie !== '') {
-				const cookies = document.cookie.split(';');
-				for (let i = 0; i < cookies.length; i++) {
-					const cookie = cookies[i].trim();
-					if (cookie.substring(0, name.length + 1) === (name + '=')) {
-						cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-						break;
-					}
-				}
-			}
-			return cookieValue;
-		}
+        const csrftoken = getCookie('csrftoken');
 
-		const csrftoken = getCookie('csrftoken');
+        document.addEventListener('DOMContentLoaded', function () {
+            // === Лайки для всех кнопок на странице ===
+            document.querySelectorAll('.like-btn').forEach(button => {
+                const heartIcon = button.querySelector('.heart-icon');
+                const likesCountSpan = button.querySelector('.likes-count');
+                const postId = button.getAttribute('data-post-id');
 
-		document.addEventListener('DOMContentLoaded', function () {
-			// === Лайки для всех кнопок на странице ===
-			document.querySelectorAll('.like-btn').forEach(button => {
-				const heartIcon = button.querySelector('.heart-icon');
-				const likesCountSpan = button.querySelector('.likes-count');
-				const postId = button.getAttribute('data-post-id');
+                button.addEventListener('click', function (e) {
+                    e.preventDefault();
 
-				button.addEventListener('click', function (e) {
-					e.preventDefault();
+                    fetch('{% url "blog:toggle_like" %}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'X-CSRFToken': csrftoken,
+                        },
+                        body: 'post_id=' + postId
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            likesCountSpan.textContent = data.likes_count;
 
-					fetch('{% url "blog:toggle_like" %}', {
-						method: 'POST',
-						headers: {
-							'Content-Type': 'application/x-www-form-urlencoded',
-							'X-CSRFToken': csrftoken,
-						},
-						body: 'post_id=' + postId
-					})
-					.then(response => response.json())
-					.then(data => {
-						likesCountSpan.textContent = data.likes_count;
+                            if (data.liked) {
+                                heartIcon.textContent = '❤';
+                                heartIcon.style.color = 'rgb(244, 67, 54)';
+                                button.classList.add('liked');
+                            } else {
+                                heartIcon.textContent = '♡';
+                                heartIcon.style.color = '#ccc';
+                                button.classList.remove('liked');
+                            }
+                        })
+                        .catch(err => console.error('Ошибка лайка:', err));
+                });
+            });
 
-						if (data.liked) {
-							heartIcon.textContent = '❤';
-							heartIcon.style.color = 'rgb(244, 67, 54)';
-							button.classList.add('liked');
-						} else {
-							heartIcon.textContent = '♡';
-							heartIcon.style.color = '#ccc';
-							button.classList.remove('liked');
-						}
-					})
-					.catch(err => console.error('Ошибка лайка:', err));
-				});
-			});
+            // === Ответы на комментарии ===
+            document.querySelectorAll('.reply').forEach(button => {
+                button.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const commentId = this.getAttribute('data-comment-id');
+                    const form = document.getElementById(`reply-form-${commentId}`);
 
-			// === Ответы на комментарии ===
-			document.querySelectorAll('.reply').forEach(button => {
-				button.addEventListener('click', function (e) {
-					e.preventDefault();
-					const commentId = this.getAttribute('data-comment-id');
-					const form = document.getElementById(`reply-form-${commentId}`);
+                    document.querySelectorAll('.reply-form').forEach(f => {
+                        f.style.display = 'none';
+                    });
 
-					document.querySelectorAll('.reply-form').forEach(f => {
-						f.style.display = 'none';
-					});
-
-					form.querySelector('[name="body"]').value = '';
-					form.style.display = 'block';
-				});
-			});
-		});
-	</script>
+                    form.querySelector('[name="body"]').value = '';
+                    form.style.display = 'block';
+                });
+            });
+        });
+    </script>
 {% endblock %}
 
 {% block footer %}
-	{% include 'blog/post/includes/sidebar.html' %}
+    {% include 'blog/post/includes/sidebar.html' %}
 {% endblock %}

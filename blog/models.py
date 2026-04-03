@@ -9,7 +9,8 @@ from django.urls import reverse
 from taggit.managers import TaggableManager  # Исправлен импорт
 from mptt.models import MPTTModel, TreeForeignKey
 from services.utils import unique_slugify
-from ckeditor.fields import RichTextField
+from django_ckeditor_5.fields import CKEditor5Field
+from django.utils.html import strip_tags
 
 
 # Исправлен импорт
@@ -82,22 +83,30 @@ class Post(models.Model):
         DRAFT = 'DF', 'Draft'
         PUBLISHED = 'PB', 'Published'
 
-    title = RichTextField(config_name='awesome_ckeditor', verbose_name='Краткое описание', max_length=500)
+    title = CKEditor5Field(
+        config_name='default',
+        verbose_name='Краткое описание',
+        max_length=500,
+        help_text="Поддерживается форматирование, но избегайте слишком длинных заголовков."
+    )
     slug = models.SlugField(verbose_name='URL', max_length=255, blank=True)
     category = TreeForeignKey(
         to='Category',
         on_delete=models.PROTECT,
         related_name='posts',
         verbose_name='Категория',
-        default=None,  # или удалите default
-        null=True  # если допустимо отсутствие категории
+        null=True,
+        blank=True
     )
     author = models.ForeignKey(
         User,
         on_delete=models.PROTECT,
         related_name='blog_posts'
     )
-    body = RichTextField(config_name='awesome_ckeditor', verbose_name='Полный текст записи')
+    body = CKEditor5Field(
+        config_name='extends',
+        verbose_name='Полный текст записи'
+    )
     views = models.PositiveIntegerField(default=0)
     publish = models.DateTimeField(default=timezone.now)
     created = models.DateTimeField(auto_now_add=True)
@@ -108,10 +117,10 @@ class Post(models.Model):
         default=Status.DRAFT
     )
     image = models.ImageField(
-        upload_to='images/%Y/%m/%d/',
+        upload_to=post_image_upload_to,  # ← исправлено: используем кастомную функцию
         blank=True,
         null=True,
-        help_text='Загрузите изображение (максимум 5 МБ, поддерживаемые форматы: JPG, PNG, WEBP)',
+        help_text='Загрузите изображение (максимум 5 МБ, поддерживаемые форматы: JPG, PNG)',
         validators=[validate_image_file]
     )
     fixed = models.BooleanField(default=False, verbose_name='Исправлено')
@@ -128,30 +137,26 @@ class Post(models.Model):
     published = PublishedManager()
     tags = TaggableManager()
 
-    # В модели Post
-
     class Meta:
         db_table = 'blog_post'
         ordering = ['-publish', '-created']
         indexes = [
-            models.Index(fields=['-publish', '-created', 'status'], ),
+            models.Index(fields=['-publish', '-created', 'status']),
         ]
         verbose_name = 'Статья'
         verbose_name_plural = 'Статьи'
 
     def get_absolute_url(self):
-        """
-                Получаем прямую ссылку на статью
-                """
-        return reverse('blog:post_detail', args=[self.publish.year, self.publish.month, self.publish.day, self.slug])
+        return reverse('blog:post_detail', args=[
+            self.publish.year, self.publish.month, self.publish.day, self.slug
+        ])
 
     def save(self, *args, **kwargs):
-        """
-            При сохранении генерируем слаг и проверяем на уникальность
-        """
+        self.title = strip_tags(self.title)
         if not self.slug:
-            self.slug = unique_slugify(self, self.title)
+            self.slug = unique_slugify(self, self.title[:50])  # ограничиваем длину для слага
         super().save(*args, **kwargs)
+
     def __str__(self):
         return self.title
 class CommentLike(models.Model):

@@ -29,8 +29,8 @@
 					   style="background-image: url({% static 'images/image_1.jpg' %});"></a>
 				{% endif %}
 				<div class="text pt-4">
-					<h3 class="mb-4"><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></h3>
-					<p class="mb-4">{{ post.body }}</p>
+					<h3 class="mb-4"><a href="{{ post.get_absolute_url }}">{{ post.title|safe }}</a></h3>
+					<p class="mb-4">{{ post.body|safe|truncatewords_html:'30'|linebreaks }}</p>
 					<div class="author mb-4 d-flex align-items-center">
 						<a href="#" class="img"></a>
 						<div class="ml-3 info">
@@ -41,7 +41,7 @@
 					<div class="meta-wrap d-md-flex align-items-center">
 						<div class="half order-md-last text-md-right">
 							<p class="meta">
-								<span><i class="icon-heart"></i>{{ post.get_sum_rating }}</span>
+								<span><i class="icon-heart"></i>{{ post.likes.count }}</span>
 								<span><i class="icon-eye"></i>{{ post.views }}</span>
 								<span><i class="icon-comment"></i>{{ post.comments.count }}</span>
 							</p>
