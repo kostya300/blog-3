@@ -6589,7 +6589,7 @@ function boxModelAdjustment( elem, dimension, box, isBorderBox, styles, computed
 
 	for ( ; i < 4; i += 2 ) {
 
-		// Both box llm exclude margin
+		// Both box models exclude margin
 		// Count margin delta separately to only add it after scroll gutter adjustment.
 		// This is needed to make negative margins work with `outerHeight( true )` (gh-3982).
 		if ( box === "margin" ) {
@@ -6708,7 +6708,7 @@ function getWidthOrHeight( elem, dimension, extra ) {
 	// Normalize "" and auto
 	val = parseFloat( val ) || 0;
 
-	// Adjust for the element's box llm
+	// Adjust for the element's box model
 	return ( val +
 		boxModelAdjustment(
 			elem,

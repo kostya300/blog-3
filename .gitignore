@@ -17,7 +17,9 @@ ENV/
 # Файлы IDE
 .idea/
 .vscode/
-
+.env
+*.env
+.env.local
 # Пакеты и сборки
 dist/
 build/

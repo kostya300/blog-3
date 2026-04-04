@@ -49,14 +49,13 @@
 						{% csrf_token %}
 						<a href="#" onclick="parentNode.submit();">Выйти</a>
 						<li><a href="{% url 'accounts:profile_detail' slug=user.profile.slug %}">Личный</a></li>
-						<li><a href="{% url 'blog:llm_chat' %}">AI Чат</a></li>
 					</form>
 				{% else %}
 					<p>Вы не вошли</p>
 					<a href="{% url 'accounts:login' %}">Войти</a>
 				{% endif %}
 				</li>
-				<li class=""><a href="{% url 'blog:post_list' %}">Домашняя</a></li>
+				<li class=""><a href="{% url 'blog:post_list' %}">Домашняя1</a></li>
 				<li><a href="{% url 'blog:travel' %}">Посты</a></li>
 				<li><a href="{% url 'blog:about' %}">Инфо</a></li>
 

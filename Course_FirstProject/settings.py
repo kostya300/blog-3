@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/6.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
+from decouple import config
 import os
 from pathlib import Path
 import sys
@@ -21,14 +22,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
-
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-$$+^w-oey%984dt(jb-!qiz52)8e103wrty9h3+d0i^nlqcst@"
+SECRET_KEY = config('SECRET_KEY',
+                    default='django-insecure-u#n(e1f0a^jx%bq_zn=ohxw39v2_&amp;gl9&amp;g&amp;w4fzj&amp;6y+5k')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = ['127.0.0.1']
+DEBUG = config('DEBUG', default=True, cast=bool)
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1').split(',')
 
 # Application definition
 
@@ -55,7 +55,6 @@ INSTALLED_APPS = [
     'mptt',
     'django_dump_load_utf8',
     'django_mptt_admin',
-    'debug_toolbar',
     'django_recaptcha',
     'django_ckeditor_5',
 ]
@@ -63,30 +62,32 @@ INSTALLED_APPS = [
 SITE_ID = 1
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "debug_toolbar.middleware.DebugToolbarMiddleware",
+
 ]
 
 ROOT_URLCONF = "Course_FirstProject.urls"
 INTERNAL_IPS = [
     '127.0.0.1',
 ]
+
 CACHES = {
     'default': {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379/1",
+        "LOCATION": config('REDIS_URL', default='redis://redis:6379/1'),
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
-
         },
-        "KEY_PREFIX": "blog33",
+        "KEY_PREFIX": config('CACHE_KEY_PREFIX', default='blog33'),
     }
 }
+
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -120,12 +121,12 @@ WSGI_APPLICATION = "Course_FirstProject.wsgi.application"
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'blog',
-        'USER': 'blog_2',
-        'PASSWORD': '21',
-        'HOST': '127.0.0.1',
-        'PORT': '5432',
+        'ENGINE': config('DB_ENGINE', default='django.db.backends.postgresql'),
+        'NAME': config('DB_NAME', default='blog'),
+        'USER': config('DB_USER', default='blog_2'),
+        'PASSWORD': config('DB_PASSWORD', default='21'),
+        'HOST': config('DB_HOST', default='db'),
+        'PORT': config('DB_PORT', default='5432'),
     }
 }
 REST_FRAMEWORK = {
@@ -158,13 +159,14 @@ SPECTACULAR_SETTINGS = {
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 # Конфигурация сервера электронной почты
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = 'kostya.barnung@gmail.com'
-EMAIL_HOST_PASSWORD = 'ehrv iopw iyja xzow'
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='test@gmail.com')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='your-default-password')
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
-SERVER_EMAIL = EMAIL_HOST_USER
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='test@gmail.com')
+SERVER_EMAIL = config('SERVER_EMAIL', default='test@gmail.com')
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
@@ -213,30 +215,32 @@ DEBUG_TOOLBAR_CONFIG = {
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
 
 LANGUAGE_CODE = 'ru'
-
 TIME_ZONE = 'Europe/Moscow'
-
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
-RECAPTCHA_PUBLIC_KEY = '6LctQZEsAAAAADUS0EJGPoyJ8ke3k33_3j6MfaVc'
-RECAPTCHA_PRIVATE_KEY = '6LctQZEsAAAAAJsko9rF_z-SJrP3GLKbEAMfVbKU'
+RECAPTCHA_PUBLIC_KEY = config('RECAPTCHA_PUBLIC_KEY', default='6LctQZEsAAAAADUS0EJGPoyJ8ke3k33_3j6MfaVc')
+RECAPTCHA_PRIVATE_KEY = config('RECAPTCHA_PRIVATE_KEY', default='6LctQZEsAAAAAJsko9rF_z-SJrP3GLKbEAMfVbKU')
 # start oauth git and google
 
-SOCIAL_AUTH_GITHUB_KEY = 'Ov23liGhCo13unikBt9H'
-SOCIAL_AUTH_GITHUB_SECRET = '421645f129830499b6a4209ca797c5e8aabf6be7'
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '48328434690-kcqd4cemubfamc78t3363uh0q755skr7.apps.googleusercontent.com'
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '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'
-STATIC_URL = 'static/'
+SOCIAL_AUTH_GITHUB_KEY = config('SOCIAL_AUTH_GITHUB_KEY', default='Ov23liGhCo13unikBt9H')
+SOCIAL_AUTH_GITHUB_SECRET = config('SOCIAL_AUTH_GITHUB_SECRET', default='421645f129830499b6a4209ca797c5e8aabf6be7')
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = config('SOCIAL_AUTH_GOOGLE_OAUTH2_KEY',
+                                       default='48328434690-kcqd4cemubfamc78t3363uh0q755skr7.apps.googleusercontent.com')
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = config('SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET',
+                                          default='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')
 
+STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 LOGIN_URL = '/accounts/login/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # папка для collectstatic
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = config('MEDIA_ROOT', default=str(BASE_DIR / 'media'))
+# Отдача статики через whitenoise (даже при DEBUG=False)
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 # Конфигурация CKEditor 5
 CKEDITOR_5_CONFIGS = {
     'default': {
@@ -281,12 +285,13 @@ CKEDITOR_5_CONFIGS = {
     },
 }
 
-CKEDITOR_5_UPLOAD_PATH = "uploads/"  # путь для загрузки изображений
-CKEDITOR_5_IMAGE_ALLOW_EXTENSIONS = ["jpg", "jpeg", "png", "gif", "webp"]
-CKEDITOR_5_FILE_ALLOW_EXTENSIONS = ["pdf", "txt", "zip"]
+# CKEditor
+CKEDITOR_5_UPLOAD_PATH = config('CKEDITOR_5_UPLOAD_PATH', default='uploads/')
+CKEDITOR_5_IMAGE_ALLOW_EXTENSIONS = config('CKEDITOR_5_IMAGE_ALLOW_EXTENSIONS', default='jpg,jpeg,png,gif,webp').split(
+    ',')
+CKEDITOR_5_FILE_ALLOW_EXTENSIONS = config('CKEDITOR_5_FILE_ALLOW_EXTENSIONS', default='pdf,txt,zip').split(',')
 
 SESSION_COOKIE_AGE = 1209600
 SESSION_COOKIE_HTTPONLY = True
-SESSION_COOKIE_DOMAIN = None
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = "/"

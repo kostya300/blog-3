@@ -1,0 +1,48 @@
+Удалить все обекты с акквунтами мз fixtures
+{
+  "model": "accounts.Profile",
+  "pk": 3,
+  "fields": {
+    "user": 3,
+    "bio": "Мой первый пост!",
+    "avatar": null,
+    "slug": "bulat"
+  }
+}
+
+
+
+1. Полная очистка состояния БД
+TaggedItem.objects.all().delete()
+Tag.objects.all().delete()
+Comment.objects.all().delete()
+Post.objects.all().delete()
+Profile.objects.all().delete()
+User.objects.all().delete()
+2. Очистка ContentType для blog и accounts
+ContentType.objects.filter(app_label='blog').delete()
+ContentType.objects.filter(app_label='accounts').delete()
+
+→ Это ключевой шаг, потому что:
+
+Django автоматически пересоздаст ContentType при следующем migrate или runserver,
+Новые ID будут корректными и совпадут с текущей структурой проекта,
+Ошибка content_type_id=(24) not found больше не возникнет.
+3. Выполнили migrate --run-syncdb
+
+docker-compose exec web python manage.py migrate --run-syncdb
+
+
+→ Это гарантирует:
+
+Создание всех ContentType,
+Создание прав (Permission) для моделей,
+Синхронизацию даже если миграций нет.
+
+4. Загрузили фикстуру
+
+docker-compose exec web python manage.py loaddata blog/fixtures/data.json
+
+🚀 Результат
+
+Installed 42 object(s) from 1 fixture(s)

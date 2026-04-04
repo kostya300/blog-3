@@ -1,0 +1,17 @@
+stages:
+  - deploy
+
+deploy:
+  stage: deploy
+  image: alpine:latest
+  before_script:
+    - apk add --no-cache openssh-client sshpass
+  script:
+    - sshpass -p "$SERVER_PASSWORD" ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "
+        cd /var/www/blog &&
+        git pull origin main &&
+        docker-compose down &&
+        docker-compose up --build -d
+      "
+  only:
+    - main

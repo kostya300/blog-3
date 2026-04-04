@@ -89,15 +89,15 @@
     }
 
     function updateRelatedSelectsOptions(currentSelect, win, objId, newRepr, newId, skipIds = []) {
-        // After create/edit a llm from the options next to the current
+        // After create/edit a model from the options next to the current
         // select (+ or :pencil:) update ForeignKey PK of the rest of selects
         // in the page.
 
         const path = win.location.pathname;
-        // Extract the llm from the popup url '.../<llm>/add/' or
-        // '.../<llm>/<id>/change/' depending the action (add or change).
+        // Extract the model from the popup url '.../<model>/add/' or
+        // '.../<model>/<id>/change/' depending the action (add or change).
         const modelName = path.split('/')[path.split('/').length - (objId ? 4 : 3)];
-        // Select elements with a specific llm reference and context of "available-source".
+        // Select elements with a specific model reference and context of "available-source".
         const selectsRelated = document.querySelectorAll(`[data-model-ref="${modelName}"] [data-context="available-source"]`);
 
         selectsRelated.forEach(function(select) {

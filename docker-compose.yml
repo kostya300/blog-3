@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16
+    env_file: .env
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    restart: unless-stopped
+
+  redis:
+    image: redis:7
+    restart: unless-stopped
+
+  web:
+    build: .
+    command: >
+      sh -c "
+      while ! nc -z db 5432; do
+        echo '⛔ Ожидание БД...';
+        sleep 2;
+      done;
+      echo '✅ БД готова!';
+      python manage.py migrate &&
+      python manage.py collectstatic --noinput &&
+      gunicorn Course_FirstProject.wsgi:application --bind 0.0.0.0:8000"
+    volumes:
+      - ./media:/app/media
+      - ./staticfiles:/app/staticfiles
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
+    env_file: .env
+    environment:
+      - DB_HOST=db
+      - REDIS_URL=redis://redis:6379/1
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
