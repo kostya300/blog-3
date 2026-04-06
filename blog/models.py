@@ -188,8 +188,8 @@ class Comment(models.Model):
         related_name='children',
         verbose_name='Родительский комментарий'
     )
-    name = models.CharField(max_length=80)
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='comments')
+    name = models.CharField(max_length=80,blank=True)
+    author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='comments')
     email = models.EmailField(blank=True, null=True)
     body = models.TextField()
     created = models.DateTimeField(auto_now_add=True)

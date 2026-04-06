@@ -19,6 +19,7 @@ urlpatterns = [
     path('travel/', views.travel, name='travel'),
     path('llm/', views.llama_chat_view, name='llm_chat'),
     path('like/', views.toggle_like, name='toggle_like'),
+    path('comment/<int:pk>/delete/', views.user_comment_delete, name='user_comment_delete'),
     path('like-comment/', views.toggle_comment_like, name='toggle_comment_like'),
 
 ]

@@ -1,7 +1,7 @@
 from urllib import request
 from django.db.models import Count, F, Prefetch
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.views.generic import ListView, DetailView, CreateView, UpdateView
@@ -15,6 +15,7 @@ from .forms import EmailPostForm, CommentForm, SearchForm, PostCreateForm, PostU
 from .models import Post, Category, Comment, Like, CommentLike
 from django.views.decorators.http import require_POST
 from taggit.models import Tag
+from django.contrib import messages
 from django.db.models import Sum
 from django.db.models import Count, F
 from django.contrib.auth.decorators import login_required
@@ -22,10 +23,11 @@ from django.utils.decorators import method_decorator
 from django.http import JsonResponse
 from .utils import get_comment_word
 from django.views import View
-
-
+from django.core.exceptions import PermissionDenied
+from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 import json
+import logging
 
 
 def llama_chat_view(request):
@@ -120,7 +122,29 @@ def toggle_like(request):
         'liked': liked,
         'likes_count': likes_count
     })
+logger = logging.getLogger(__name__)
 
+@login_required
+@require_http_methods(["DELETE"])
+def user_comment_delete(request, pk):
+    try:
+        logger.info(f"Попытка удаления комментария ID: {pk}, пользователь: {request.user}")
+        comment = get_object_or_404(Comment, pk=pk)
+        logger.debug(f"Найден комментарий: {comment.id}, автор: {comment.author}")
+
+        # Проверка прав: автор или администратор
+        if comment.author != request.user and not request.user.is_staff:
+            logger.warning(f"Пользователь {request.user} пытается удалить чужой комментарий {comment.id}")
+            return JsonResponse({'error': 'Вы не можете удалить чужой комментарий.'}, status=403)
+
+        logger.info("Начинаем удаление комментария")
+        comment.delete()
+        logger.info(f"Комментарий {pk} успешно удалён")
+        return JsonResponse({'success': True})
+
+    except PermissionDenied:
+        logger.error(f"Отказано в доступе при удалении комментария {pk}")
+        return JsonResponse({'error': 'У вас нет прав для удаления этого комментария.'}, status=403)
 
 class PostUpdateView(UserPassesTestMixin,UpdateView):
     """
@@ -312,7 +336,10 @@ def comment_create(request, post_id):
     if request.method == 'POST':
         form = CommentCreateForm(request.POST, post=post, user=request.user)
         if form.is_valid():
-            comment = form.save()
+            comment = form.save(commit=False)  # не сохраняем сразу
+            comment.author = request.user  # привязываем текущего пользователя
+            comment.post = post  # привязываем пост
+            comment.save()
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return JsonResponse({'success': True, 'comment_id': comment.id})
             return redirect(post.get_absolute_url())
@@ -320,6 +347,7 @@ def comment_create(request, post_id):
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return JsonResponse({'success': False, 'errors': form.errors})
     return redirect(post.get_absolute_url())
+
 
 
 @require_POST
@@ -331,7 +359,7 @@ def post_comment(request, post_id):
     if form.is_valid():
         comment = form.save(commit=False)
         comment.post = post
-        comment.user = request.user
+        comment.author = request.user
         comment.save()
         return redirect(
             'blog:post_detail',

@@ -9,15 +9,31 @@ https://docs.djangoproject.com/en/6.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
-from decouple import config
+from decouple import config,AutoConfig
 import os
 from pathlib import Path
 import sys
 import mimetypes
+
+from dotenv import load_dotenv
 from drf_spectacular.settings import SPECTACULAR_DEFAULTS
 
+
+
+
+load_dotenv()
 mimetypes.add_type("application/javascript", ".js", True)
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
+
+# Определяем режим: dev или prod
+ENV = config('ENV', default='dev')  # можно переопределить через переменную окружения
+
+# Автоматически выбираем файл .env
+if ENV == 'prod':
+    config = AutoConfig(search_path='.env.prod')
+else:
+    config = AutoConfig(search_path='.env')
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Quick-start development settings - unsuitable for production
@@ -56,6 +72,7 @@ INSTALLED_APPS = [
     'django_dump_load_utf8',
     'django_mptt_admin',
     'django_recaptcha',
+    'debug_toolbar',
     'django_ckeditor_5',
 ]
 
@@ -69,6 +86,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "debug_toolbar.middleware.DebugToolbarMiddleware"
 
 ]
 
@@ -77,16 +95,24 @@ INTERNAL_IPS = [
     '127.0.0.1',
 ]
 
-CACHES = {
-    'default': {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": config('REDIS_URL', default='redis://redis:6379/1'),
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-        },
-        "KEY_PREFIX": config('CACHE_KEY_PREFIX', default='blog33'),
+# Вместо Redis — используем локальную память в режиме DEBUG
+if DEBUG:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        }
     }
-}
+else:
+    CACHES = {
+        'default': {
+            "BACKEND": "django_redis.cache.RedisCache",
+            "LOCATION": config('REDIS_URL'),
+            "OPTIONS": {
+                "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            },
+            "KEY_PREFIX": config('CACHE_KEY_PREFIX'),
+        }
+    }
 
 TEMPLATES = [
     {

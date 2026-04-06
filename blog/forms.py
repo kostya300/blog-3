@@ -109,12 +109,13 @@ class CommentCreateForm(forms.ModelForm):
             self.fields['name'].initial = self.user.get_full_name() or self.user.username
             self.fields['name'].widget.attrs['readonly'] = True
 
+
     def save(self, commit=True):
         comment = super().save(commit=False)
         comment.post = self.post
 
         if self.user and self.user.is_authenticated:
-            comment.user = self.user
+            comment.author = self.user
             comment.name = self.user.get_full_name() or self.user.username
             comment.email = self.user.email
         else:
@@ -127,6 +128,7 @@ class CommentCreateForm(forms.ModelForm):
         if commit:
             comment.save()
         return comment
+
 
 
 class PostCreateForm(forms.ModelForm):

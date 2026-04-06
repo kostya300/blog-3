@@ -1,0 +1,36 @@
+.delete-comment-btn {
+    background: none;
+    border: none;
+    font-size: 1.5em;
+    color: #dc3545;
+    cursor: pointer;
+    padding: 0;
+    width: 28px;
+    height: 28px;
+    line-height: 1;
+    text-align: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+    margin-left: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    /* Добавляем фон и тень */
+    background-color: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    position: relative;
+    top: -2px; /* слегка поднимаем */
+}
+
+.delete-comment-btn:hover {
+    background-color: #dc3545;
+    color: white;
+    transform: scale(1.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.delete-comment-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.3);
+}
