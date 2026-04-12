@@ -1,0 +1,9 @@
+<div class="weather-widget text-center mb-4">
+    <h6><i class="icon-cloud"></i> Погода в Екатеринбурге</h6>
+    {% if weather_temperature is not None %}
+        <i class="icon-cloud" style="font-size: 1.2em; color: #6c757d;"></i>
+        <p class="mb-0"><strong>{{ weather_temperature }}&nbsp;°C</strong></p>
+    {% else %}
+        <p class="text-muted"><small>Не удалось загрузить</small></p>
+    {% endif %}
+</div>

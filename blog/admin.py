@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from blog.models import Post, Comment,Category
+from blog.models import Post, Comment,Category,Subscriber
 from django_mptt_admin.admin import DjangoMpttAdmin
 
 # Register your llm here.
@@ -26,3 +26,8 @@ class CommentAdmin(admin.ModelAdmin):
     list_display = ['name', 'email', 'post', 'created', 'active']
     list_filter = ['active', 'created', 'updated']
     search_fields = ['name', 'email', 'body']
+@admin.register(Subscriber)
+class SubscriberAdmin(admin.ModelAdmin):
+    list_display = ('email', 'subscribed_at')
+    list_filter = ('subscribed_at',)
+    search_fields = ('email',)

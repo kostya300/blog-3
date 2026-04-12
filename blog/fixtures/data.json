@@ -232,7 +232,7 @@
         "post": 1,
         "parent": null,
         "name": "admin",
-        "user": 1,
+        "author": 1,
         "email": "kostik.barnung@gmail.com",
         "body": "Приветик",
         "created": "2026-04-03T11:34:32.877Z",
@@ -247,7 +247,7 @@
         "post": 4,
         "parent": null,
         "name": "Константин",
-        "user": 3,
+        "author": 3,
         "email": "question727272@gmail.com",
         "body": "Это достаточно интересная статья...ну я так думаю",
         "created": "2026-04-03T13:55:31.538Z",
@@ -262,7 +262,7 @@
         "post": 1,
         "parent": 1,
         "name": "Jinja",
-        "user": 4,
+        "author": 4,
         "email": "qwe@qwe.com",
         "body": "Как дела?",
         "created": "2026-04-03T14:28:41.493Z",
@@ -277,7 +277,7 @@
         "post": 5,
         "parent": null,
         "name": "Jinja",
-        "user": 4,
+        "author": 4,
         "email": "qwe@qwe.com",
         "body": "О как!",
         "created": "2026-04-03T14:43:13.312Z",
@@ -292,7 +292,7 @@
         "post": 6,
         "parent": null,
         "name": "admin",
-        "user": 1,
+        "author": 1,
         "email": "question727272@gmail.com",
         "body": "Сойдёт",
         "created": "2026-04-03T15:03:16.864Z",
@@ -307,7 +307,7 @@
         "post": 5,
         "parent": 4,
         "name": "admin",
-        "user": 1,
+        "author": 1,
         "email": "kostik.barnung@gmail.com",
         "body": "Ну и чё?",
         "created": "2026-04-03T15:32:50.956Z",
@@ -445,78 +445,6 @@
     "fields": {
         "name": "lyudi_1",
         "slug": "lyudi_1"
-    }
-},
-{
-    "model": "taggit.taggeditem",
-    "pk": 4,
-    "fields": {
-        "tag": 6,
-        "content_type": 24,
-        "object_id": 1
-    }
-},
-{
-    "model": "taggit.taggeditem",
-    "pk": 5,
-    "fields": {
-        "tag": 7,
-        "content_type": 24,
-        "object_id": 2
-    }
-},
-{
-    "model": "taggit.taggeditem",
-    "pk": 6,
-    "fields": {
-        "tag": 7,
-        "content_type": 24,
-        "object_id": 3
-    }
-},
-{
-    "model": "taggit.taggeditem",
-    "pk": 7,
-    "fields": {
-        "tag": 7,
-        "content_type": 24,
-        "object_id": 4
-    }
-},
-{
-    "model": "taggit.taggeditem",
-    "pk": 9,
-    "fields": {
-        "tag": 8,
-        "content_type": 24,
-        "object_id": 3
-    }
-},
-{
-    "model": "taggit.taggeditem",
-    "pk": 10,
-    "fields": {
-        "tag": 8,
-        "content_type": 24,
-        "object_id": 5
-    }
-},
-{
-    "model": "taggit.taggeditem",
-    "pk": 11,
-    "fields": {
-        "tag": 8,
-        "content_type": 24,
-        "object_id": 6
-    }
-},
-{
-    "model": "taggit.taggeditem",
-    "pk": 12,
-    "fields": {
-        "tag": 8,
-        "content_type": 24,
-        "object_id": 7
     }
 }
 ]

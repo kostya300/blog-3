@@ -1,0 +1,15 @@
+{% extends "blog/base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="alert alert-success mt-4">
+                <h4>Спасибо за подписку! 🎉</h4>
+                <p>Вы успешно подписались на рассылку. Скоро начнёте получать самые свежие статьи.</p>
+            </div>
+            <a href="{% url 'blog:post_list' %}" class="btn btn-primary">Вернуться на главную</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

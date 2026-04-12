@@ -19,36 +19,37 @@
             <p>{{ comment.body|safe }} </p><!-- Тело комментария -->
             <!-- Дата создания -->
             <div class="meta">{{ comment.created|date:"d M Y, H:i" }}</div>
-            <!-- Кнопка лайка -->
+
+            <!-- Блок реакций (только лайк) -->
             <p class="comment-reactions">
                 <button class="like-comment-btn"
                         data-comment-id="{{ comment.id }}"
                         data-liked="{% if comment.user_liked %}true{% else %}false{% endif %}">
-					<span class="heart-icon">
-						{% if comment.user_liked %}❤{% else %}♡{% endif %}
-					</span>
+                    <span class="heart-icon">
+                {% if comment.user_liked %}❤{% else %}♡{% endif %}
+            </span>
                     <span class="likes-count">{{ comment.likes_count }}</span>
                 </button>
-                <!-- Кнопка удаления с AJAX -->
-                {% if comment.author and comment.author == request.user %}
-                    <button type="button"
-                            class="delete-comment-btn"
-                            data-comment-id="{{ comment.pk }}"
-                            data-delete-url="{% url 'blog:user_comment_delete' comment.pk %}"
-                            title="Удалить комментарий">
-                        ×
-                    </button>
-                {% endif %}
-
             </p>
 
+            <!-- Кнопка удаления (отдельно) -->
+            {% if comment.author and comment.author == request.user %}
+                <button type="button"
+                        class="delete-comment-btn"
+                        data-comment-id="{{ comment.id }}"
+                        data-delete-url="{% url 'blog:user_comment_delete' comment.id %}"
+                        title="Удалить комментарий"
+                        style="color: #000000; background: none; border: none; font-size: 18px; cursor: pointer;">
+                    ×
+                </button>
+            {% endif %}
 
             <!-- Кнопка "Ответить" -->
             <p><a href="#" class="reply" data-comment-id="{{ comment.id }}">Ответить</a></p>
 
             <!-- Форма для ответа (скрыта по умолчанию) -->
             <div id="reply-form-{{ comment.id }}" class="reply-form" style="display: none;">
-                <form method="post" action="{% url 'blog:comment_create' post.id %}">
+                <form method="post" action="{% url 'blog:comment_create' post.id %}#comments-section" class="comment-reply-form">
                     {% csrf_token %}
                     <input type="hidden" name="post_id" value="{{ post.id }}">
                     <input type="hidden" name="parent" value="{{ comment.id }}">

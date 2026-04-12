@@ -3,140 +3,125 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<title>Путешествия - Free</title>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Путешествия - Free</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-	<link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700" rel="stylesheet">
-	<link href="https://fonts.googleapis.com/css?family=Lora:400,400i,700,700i&display=swap" rel="stylesheet">
-	<link href="https://fonts.googleapis.com/css?family=Abril+Fatface&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Lora:400,400i,700,700i&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Abril+Fatface&display=swap" rel="stylesheet">
 
-	<link rel="stylesheet" href="{% static 'css/open-iconic-bootstrap.min.css' %}">
-	<link rel="stylesheet" href="{% static 'css/animate.css' %}">
+    <link rel="stylesheet" href="{% static 'css/open-iconic-bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/animate.css' %}">
 
-	<link rel="stylesheet" href="{% static 'css/owl.carousel.min.css' %}">
-	<link rel="stylesheet" href="{% static 'css/owl.theme.default.min.css' %}">
-	<link rel="stylesheet" href="{% static 'css/magnific-popup.css' %}">
+    <link rel="stylesheet" href="{% static 'css/owl.carousel.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/owl.theme.default.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/magnific-popup.css' %}">
 
-	<link rel="stylesheet" href="{% static 'css/aos.css' %}">
+    <link rel="stylesheet" href="{% static 'css/aos.css' %}">
 
-	<link rel="stylesheet" href="{% static 'css/ionicons.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/ionicons.min.css' %}">
 
-	<link rel="stylesheet" href="{% static 'css/bootstrap-datepicker.css' %}">
-	<link rel="stylesheet" href="{% static 'css/jquery.timepicker.css' %}">
-	<link rel="stylesheet" href="{% static 'css/profile.css' %}">
+    <link rel="stylesheet" href="{% static 'css/bootstrap-datepicker.css' %}">
+    <link rel="stylesheet" href="{% static 'css/jquery.timepicker.css' %}">
+    <link rel="stylesheet" href="{% static 'css/profile.css' %}">
 
-	<link rel="stylesheet" href="{% static 'css/login.css' %}">
-	<link rel="stylesheet" href="{% static 'css/flaticon.css' %}">
-	<link rel="stylesheet" href="{% static 'css/icomoon.css' %}">
-	<link rel="stylesheet" href="{% static 'css/style.css' %}">
-	{% block css %}{% endblock %}
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+    <link rel="stylesheet" href="{% static 'css/flaticon.css' %}">
+    <link rel="stylesheet" href="{% static 'css/icomoon.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style2.css' %}">
+    {% block css %}{% endblock %}
 </head>
 <body>
 
 <div id="colorlib-page">
 
-	<a href="#" class="js-colorlib-nav-toggle colorlib-nav-toggle"><i></i></a>
+    <a href="#" class="js-colorlib-nav-toggle colorlib-nav-toggle"><i></i></a>
+    <aside id="colorlib-aside" role="complementary" class="js-fullheight">
+        <!-- Заменяем всю форму на эту кнопку -->
+        <button id="theme-toggle" class="btn btn-sm theme-toggle-btn"
+                style="width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; padding: 0; font-size: 16px;">
+            {% if current_theme == 'dark' %}
+                🌞
+            {% else %}
+                🌙
+            {% endif %}
+        </button>
+        <!-- В боковой панели -->
+        <div>
 
-	<aside id="colorlib-aside" role="complementary" class="js-fullheight">
+            {% include "blog/post/includes/weather.html" %}
+        </div>
+        <nav id="colorlib-main-menu" role="navigation">
 
-		<nav id="colorlib-main-menu" role="navigation">
+            <ul>
+                <li style="border:none;">
+                    {% if user.is_authenticated %}
+                        <form action="{% url 'logout' %}" method="post">
+                            {% csrf_token %}
+                            <a href="#" onclick="parentNode.submit();">Выйти</a>
+                            <li><a href="{% url 'accounts:profile_detail' slug=user.profile.slug %}">Личный</a></li>
+                        </form>
+                    {% else %}
+                        <p>Вы не вошли</p>
+                        <a href="{% url 'accounts:login' %}">Войти</a>
+                    {% endif %}
+                </li>
+                <li class=""><a href="{% url 'blog:post_list' %}">Домашняя</a></li>
+                <li><a href="{% url 'blog:travel' %}">Посты</a></li>
+                <li><a href="{% url 'blog:about' %}">Инфо</a></li>
 
-			<ul>
-				<li style="border:none;">
-				{% if user.is_authenticated %}
-					<form action="{% url 'logout' %}" method="post">
-						{% csrf_token %}
-						<a href="#" onclick="parentNode.submit();">Выйти</a>
-						<li><a href="{% url 'accounts:profile_detail' slug=user.profile.slug %}">Личный</a></li>
-					</form>
-				{% else %}
-					<p>Вы не вошли</p>
-					<a href="{% url 'accounts:login' %}">Войти</a>
-				{% endif %}
-				</li>
-				<li class=""><a href="{% url 'blog:post_list' %}">Домашняя1</a></li>
-				<li><a href="{% url 'blog:travel' %}">Посты</a></li>
-				<li><a href="{% url 'blog:about' %}">Инфо</a></li>
+            </ul>
+        </nav>
 
-			</ul>
-		</nav>
+        <div class="colorlib-footer">
+            <h1 id="colorlib-logo" class="mb-4"><a href="post/list.html"
+                                                   style="background-image: url({% static 'images/bg_1.jpg' %});">
+                <span>Страны</span></a></h1>
+            <div class="mb-4">
+                <h3>Подпишитесь на рассылку</h3>
+                {% include "blog/post/includes/subscribe_form.html" %}
+            </div>
+            <p class="pfooter"><!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+                Автор &copy;<script>document.write(new Date().getFullYear());</script>
+                Все права защищены | Этот шаблон создан с использованием <i class="icon-heart" aria-hidden="true"></i>
+                <a
+                        href="https://colorlib.com" target="_blank">Colorlib</a>
+                <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. --></p>
+        </div>
+    </aside>
+    <!-- END COLORLIB-ASIDE -->
+    <div id="colorlib-main">
+        <section class="ftco-section ftco-no-pt ftco-no-pb">
+            <div class="container">
+                <div class="row d-flex" id="content">
+                    <!--start common-->
+                    {% block content %}
+                    {% endblock %}
 
-		<div class="colorlib-footer">
-			<h1 id="colorlib-logo" class="mb-4"><a href="post/list.html"
-			                                       style="background-image: url({% static 'images/bg_1.jpg' %});">
-				<span>Страны</span></a></h1>
-			<div class="mb-4">
-				<h3>Подпишитесь на рассылку</h3>
-				<form action="#" class="colorlib-subscribe-form">
-					<div class="form-group d-flex">
-						<div class="icon"><span class="icon-paper-plane"></span></div>
-						<input type="text" class="form-control" placeholder="Enter Email Address">
-					</div>
-				</form>
-			</div>
-			<p class="pfooter"><!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-				Автор &copy;<script>document.write(new Date().getFullYear());</script>
-				Все права защищены | Этот шаблон создан с использованием <i class="icon-heart" aria-hidden="true"></i>
-				<a
-						href="https://colorlib.com" target="_blank">Colorlib</a>
-				<!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. --></p>
-		</div>
-	</aside> <!-- END COLORLIB-ASIDE -->
-	<div id="colorlib-main">
-		<section class="ftco-section ftco-no-pt ftco-no-pb">
-			<div class="container">
-				<div class="row d-flex" id="content">
-					<!--start common-->
-					{% block content %}
-					{% endblock %}
+                    <!--end common-->
+                    <!-- START COL -->
+                    {% block footer %}
 
-					<!--end common-->
-					<!-- START COL -->
-					{% block footer %}
+                    {% endblock %}
 
-					{% endblock %}
+                    <!-- END COL -->
 
-					<!-- END COL -->
-				</div>
-			</div>
-		</section>
-	</div><!-- END COLORLIB-MAIN -->
+                </div>
+            </div>
+        </section>
+    </div><!-- END COLORLIB-MAIN -->
 </div><!-- END COLORLIB-PAGE -->
 
 <!-- loader -->
 <div id="ftco-loader" class="show fullscreen">
-	<svg class="circular" width="48px" height="48px">
-		<circle class="path-bg" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke="#eeeeee"/>
-		<circle class="path" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke-miterlimit="10"
-		        stroke="#F96D00"/>
-	</svg>
+    <svg class="circular" width="48px" height="48px">
+        <circle class="path-bg" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke="#eeeeee"/>
+        <circle class="path" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke-miterlimit="10"
+                stroke="#F96D00"/>
+    </svg>
 </div>
-{#<button id="theme-toggle">Переключить тему</button>#}
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const toggleButton = document.getElementById('theme-toggle');
-    const currentTheme = localStorage.getItem('theme') || 'light';
-
-
-    if (currentTheme === 'dark') {
-        document.documentElement.setAttribute('data-theme', 'dark');
-        toggleButton.textContent = 'Светлая тема';
-    } else {
-        toggleButton.textContent = 'Тёмная тема';
-    }
-
-    toggleButton.addEventListener('click', function() {
-        const current = document.documentElement.getAttribute('data-theme');
-        const newTheme = current === 'dark' ? 'light' : 'dark';
-
-        document.documentElement.setAttribute('data-theme', newTheme);
-        localStorage.setItem('theme', newTheme);
-
-        this.textContent = newTheme === 'dark' ? 'Светлая тема' : 'Тёмная тема';
-    });
-});
-</script>
 <script src="{% static 'js/jquery.min.js' %}"></script>
 <script src="{% static 'js/jquery-migrate-3.0.1.min.js' %}"></script>
 <script src="{% static 'js/popper.min.js' %}"></script>
@@ -152,5 +137,40 @@ document.addEventListener('DOMContentLoaded', function() {
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBVWaKrjvy3MaE7SQ74_uJiULgl1JY0H2s&sensor=false"></script>
 <script src="{% static 'js/google-map.js' %}"></script>
 <script src="{% static 'js/main.js' %}"></script>
+<!-- Все <script src="..."></script> выше -->
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const button = document.getElementById('theme-toggle');
+
+        function updateButtonText(theme) {
+            button.textContent = theme === 'dark' ? '🌞' : '🌙';
+        }
+
+        updateButtonText('{{ current_theme }}');
+
+        button.addEventListener('click', function () {
+            fetch('{% url "blog:switch_theme" %}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({})
+            })
+                .then(response => response.json())
+                .then(data => {
+                    document.documentElement.setAttribute('data-theme', data.theme);
+                    updateButtonText(data.theme);
+                    localStorage.setItem('theme', data.theme);
+                });
+        });
+
+        const savedTheme = localStorage.getItem('theme') || '{{ current_theme }}';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    });
+</script>
+</body>
+</html>
 </body>
 </html>

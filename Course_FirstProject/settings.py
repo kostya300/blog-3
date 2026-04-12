@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/6.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
-from decouple import config,AutoConfig
+from decouple import config, AutoConfig
 import os
 from pathlib import Path
 import sys
@@ -17,9 +17,6 @@ import mimetypes
 
 from dotenv import load_dotenv
 from drf_spectacular.settings import SPECTACULAR_DEFAULTS
-
-
-
 
 load_dotenv()
 mimetypes.add_type("application/javascript", ".js", True)
@@ -127,6 +124,10 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "blog.context_processors.popular_posts",
                 'blog.context_processors.search_form',
+                'blog.context_processors.most_viewed_posts',
+                'blog.context_processors.categories',
+                'blog.context_processors.subscribe_form',
+                'blog.context_processors.weather_context',
                 'social_django.context_processors.backends',
                 'social_django.context_processors.login_redirect',
 
@@ -260,7 +261,7 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = config('SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET',
                                           default='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')
 
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [BASE_DIR / 'static']
+STATICFILES_DIRS = [BASE_DIR / "static",]
 LOGIN_URL = '/accounts/login/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # папка для collectstatic
 MEDIA_URL = '/media/'

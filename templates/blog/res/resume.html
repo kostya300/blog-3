@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,13 +10,16 @@
       padding: 0;
       box-sizing: border-box;
     }
+
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       line-height: 1.6;
       color: #333;
       background-color: #f9f9f9;
       padding: 20px;
+      transition: all 0.3s ease;
     }
+
     .container {
       max-width: 800px;
       margin: 0 auto;
@@ -24,46 +27,97 @@
       padding: 30px;
       border-radius: 8px;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
     }
+
     h1 {
       text-align: center;
       margin-bottom: 10px;
       color: #2c3e50;
     }
+
     h2 {
       border-bottom: 2px solid #3498db;
       padding-bottom: 5px;
       margin: 25px 0 15px;
       color: #2980b9;
     }
+
     p {
       margin-bottom: 10px;
     }
+
     ul {
       margin-left: 20px;
       margin-bottom: 15px;
     }
+
     li {
       margin-bottom: 5px;
     }
+
     .contact-item {
       display: flex;
       align-items: center;
       margin-bottom: 8px;
     }
+
     .contact-item::before {
       content: "•";
       color: #3498db;
       font-weight: bold;
       margin-right: 10px;
     }
+
     a {
       color: #3498db;
-      textdecoration: none;
+      text-decoration: none;
     }
+
     a:hover {
-      textdecoration: underline;
+      text-decoration: underline;
     }
+
+    /* === ТЁМНАЯ ТЕМА === */
+    [data-theme="dark"] body {
+      background-color: #1a1a1a;
+      color: #e0e0e0;
+    }
+
+    [data-theme="dark"] .container {
+      background-color: #2d2d2d;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+      border: 1px solid #444;
+    }
+
+    [data-theme="dark"] h1,
+    [data-theme="dark"] h2,
+    [data-theme="dark"] h3 {
+      color: #bb86fc;
+    }
+
+    [data-theme="dark"] h2 {
+      border-bottom-color: #bb86fc;
+    }
+
+    [data-theme="dark"] .contact-item::before {
+      color: #bb86fc;
+    }
+
+    [data-theme="dark"] a {
+      color: #03dac6;
+    }
+
+    [data-theme="dark"] a:hover {
+      color: #00bfa5;
+    }
+
+    [data-theme="dark"] p,
+    [data-theme="dark"] li,
+    [data-theme="dark"] strong {
+      color: #e0e0e0;
+    }
+
     @media (max-width: 600px) {
       .container {
         padding: 20px;
@@ -82,14 +136,13 @@
 
     <h2>Ключевые навыки</h2>
     <ul>
-      <li><strong>Frontend:</strong> HTML, CSS, адаптивная вёрстка,изучаю JS</li>
+      <li><strong>Frontend:</strong> HTML, CSS, адаптивная вёрстка, изучаю JS</li>
       <li><strong>Backend:</strong> Python (Django), работа с API (Stripe, OAuth‑авторизация).</li>
       <li><strong>Базы данных:</strong> PostgreSQL/SQLite (на уровне CRUD‑операций).</li>
       <li><strong>Безопасность:</strong> основы пентеста, практика безопасной разработки.</li>
       <li><strong>Инструменты:</strong> Git, GitHub, Linux (командная строка).</li>
       <li><strong>Английский язык:</strong> начальный уровень (понимание простых фраз и технической документации).</li>
     </ul>
-
 
     <h2>Опыт и проекты</h2>
     <h3>1. Full‑stack веб‑приложения (Django)</h3>
@@ -99,7 +152,6 @@
       <li>Управление контентом, CRUD‑операции.</li>
       <li><a href="https://github.com/kostya300/st" target="_blank">Репозиторий</a></li>
     </ul>
-
 
     <h3>2. Вёрстка (HTML/CSS)</h3>
     <ul>
@@ -116,7 +168,6 @@
       </li>
     </ul>
     <p>Все проекты размещены на <a href="https://github.com/kostya300" target="_blank">GitHub</a>.</p>
-
 
     <h2>Образование и саморазвитие</h2>
     <ul>
@@ -135,7 +186,6 @@
       <li>Ответственность, инициативность, нацеленность на результат.</li>
     </ul>
 
-
     <h2>Контакты</h2>
     <div class="contact-item">
       <strong>GitHub:</strong> <a href="https://github.com/kostya300" target="_blank">github.com/kostya300</a>
@@ -149,5 +199,14 @@
 
     <p><em>Готов к удалённой работе, стажировкам и проектам с наставником.</em></p>
   </div>
+
+  <script>
+    // Применяем тему из localStorage или по умолчанию
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+
+    // Опционально: добавить кнопку переключения темы
+    // Можно встроить в меню сайта
+  </script>
 </body>
 </html>

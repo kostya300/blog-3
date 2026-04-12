@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="{% static 'css/flaticon.css' %}">
     <link rel="stylesheet" href="{% static 'css/icomoon.css' %}">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style2.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -93,6 +94,7 @@
                     </div>
                 {% endfor %}
             {% endcache %}
+
         </div>
 
         <div class="row">
@@ -102,6 +104,7 @@
                 </div>
             </div>
         </div>
+    {% include 'blog/post/includes/sidebar.html' %}
     </div>
 
     <script>
@@ -175,8 +178,4 @@
             });
         });
     </script>
-{% endblock %}
-
-{% block footer %}
-    {% include 'blog/post/includes/sidebar.html' %}
 {% endblock %}

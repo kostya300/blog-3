@@ -3,6 +3,7 @@
 {% load extras %}
 {% block extra_css %}
     <link rel="stylesheet" href="{% static 'css/comments.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style2.css' %}">
 {% endblock %}
 {% block content %}
     <div class="col-lg-8 px-md-5 py-5">
@@ -55,7 +56,7 @@
             </div>
 
             <!-- Комментарии -->
-            <div class="pt-5 mt-5">
+            <div id="comments-section" class="pt-5 mt-5">
                 <h3 class="mb-5 font-weight-bold">{{ comment_word }}</h3>
                 <ul class="comment-list">
                     {% include "blog/post/comments_list.html" with comments=comments %}
@@ -68,7 +69,9 @@
                 {% endif %}
             </div>
         </div>
+
     </div>
+    {% include 'blog/post/includes/sidebar.html' %}
 
     <!-- Стили -->
     <style>
@@ -249,11 +252,9 @@
                 });
             });
         });
+        //theme
     </script>
 {% endblock %}
 {% block extra_js %}
     <script src="{% static 'js/comments.js' %}"></script>
-{% endblock %}
-{% block footer %}
-    {% include 'blog/post/includes/sidebar.html' %}
 {% endblock %}

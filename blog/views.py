@@ -11,7 +11,8 @@ from django.contrib.auth.views import redirect_to_login
 from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
-from .forms import EmailPostForm, CommentForm, SearchForm, PostCreateForm, PostUpdateForm, CommentCreateForm
+from .forms import EmailPostForm, CommentForm, SearchForm, PostCreateForm, PostUpdateForm, CommentCreateForm, \
+    SubscribeForm
 from .models import Post, Category, Comment, Like, CommentLike
 from django.views.decorators.http import require_POST
 from taggit.models import Tag
@@ -30,14 +31,6 @@ import json
 import logging
 
 
-def llama_chat_view(request):
-    """Страница чата с LLM"""
-    return render(request, 'blog/llm/chat.html')
-
-
-# """LLaMA API view starts here"""
-
-# """LLaMA API view ends here"""
 
 # Главная страница на основе класса
 class PostListView(ListView):
@@ -83,9 +76,11 @@ class PostListView(ListView):
         ).order_by('-comment_count')[:5]
 
         # Самые просматриваемые
-        context['most_viewed_posts'] = Post.published.order_by('-views')[:5]
+        context[''] = Post.published.order_by('-views')[:5]
 
         return context
+
+
 @require_POST
 @login_required
 def toggle_comment_like(request):
@@ -105,6 +100,8 @@ def toggle_comment_like(request):
         'liked': liked,
         'likes_count': likes_count
     })
+
+
 @require_POST
 @login_required
 def toggle_like(request):
@@ -122,7 +119,10 @@ def toggle_like(request):
         'liked': liked,
         'likes_count': likes_count
     })
+
+
 logger = logging.getLogger(__name__)
+
 
 @login_required
 @require_http_methods(["DELETE"])
@@ -146,7 +146,38 @@ def user_comment_delete(request, pk):
         logger.error(f"Отказано в доступе при удалении комментария {pk}")
         return JsonResponse({'error': 'У вас нет прав для удаления этого комментария.'}, status=403)
 
-class PostUpdateView(UserPassesTestMixin,UpdateView):
+import requests
+import requests
+from django.shortcuts import render
+
+@csrf_exempt
+def switch_theme(request):
+    # Определяем, какая тема сейчас и какую нужно установить
+    current_theme = request.COOKIES.get('theme', 'light')
+    new_theme = 'dark' if current_theme == 'light' else 'light'
+    # Формируем ответ
+    response = JsonResponse({'theme': new_theme})
+    # Устанавливаем куку
+    response.set_cookie('theme', new_theme, max_age=365 * 24 * 60 * 60)
+    return response
+def subscribe(request):
+    if request.method == 'POST':
+        form = SubscribeForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('blog:subscribed_done')
+        else:
+
+            messages.error(request, 'Пожалуйста, введите корректный email.')
+
+    return redirect('blog:post_list')
+
+
+def subscribed_done(request):
+    return render(request, 'blog/subscribe_done.html')
+
+
+class PostUpdateView(UserPassesTestMixin, UpdateView):
     """
     Представление: обновления материала на сайте
     """
@@ -168,6 +199,7 @@ class PostUpdateView(UserPassesTestMixin,UpdateView):
                 kwargs['instance'] = self.object
             kwargs['initial'] = {'author': self.object.author}
         return kwargs
+
 
 class PostCreateView(CreateView):
     """
@@ -223,8 +255,8 @@ class PostDetailView(DetailView):
         root_comments = post.comments.filter(active=True, parent__isnull=True).prefetch_related(
             Prefetch(
                 'children',
-                queryset = Comment.objects.filter(active=True),
-                to_attr = 'children_comments'
+                queryset=Comment.objects.filter(active=True),
+                to_attr='children_comments'
             )
         )
         # Аннотируем количество лайков и факт лайка текущим пользователем
@@ -333,21 +365,47 @@ def post_share(request, post_id):
 
 def comment_create(request, post_id):
     post = get_object_or_404(Post, id=post_id)
+
     if request.method == 'POST':
         form = CommentCreateForm(request.POST, post=post, user=request.user)
-        if form.is_valid():
-            comment = form.save(commit=False)  # не сохраняем сразу
-            comment.author = request.user  # привязываем текущего пользователя
-            comment.post = post  # привязываем пост
-            comment.save()
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return JsonResponse({'success': True, 'comment_id': comment.id})
-            return redirect(post.get_absolute_url())
-        else:
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return JsonResponse({'success': False, 'errors': form.errors})
-    return redirect(post.get_absolute_url())
 
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.author = request.user
+            comment.post = post
+            comment.save()
+
+            # Проверяем, AJAX ли запрос
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': True,
+                    'comment_id': comment.id,
+                    'author': request.user.get_full_name() or request.user.username,
+                    'body': comment.body,
+                    'created': comment.created.strftime('%d %b %Y, %H:%M'),
+                    'avatar_url': f'https://via.placeholder.com/60',  # Заглушка. Можно заменить на реальное поле
+                })
+
+            # Обычный запрос — делаем редирект с якорём
+            from django.urls import reverse
+            url = reverse('blog:post_detail', args=[
+                post.publish.year,
+                post.publish.month,
+                post.publish.day,
+                post.slug
+            ]) + '#comments-section'
+            return redirect(url)
+
+        else:
+            # Ошибки валидации
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'success': False, 'errors': form.errors}, status=400)
+
+            # Для обычной формы можно добавить сообщение
+            messages.error(request, 'Проверьте данные формы.')
+
+    # На случай GET или невалидного POST
+    return redirect(post.get_absolute_url())
 
 
 @require_POST

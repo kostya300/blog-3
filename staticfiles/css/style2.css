@@ -1,0 +1,635 @@
+/* === ТЁМНАЯ ТЕМА: Стили для sidebar.html === */
+/* === ФИКС: Кнопка переключения темы — видимость в обеих темах === */
+/* === ТЁМНАЯ ТЕМА: Форма комментариев === */
+/* === ТЁМНАЯ ТЕМА: Блок автора и кнопка "Поделиться" === */
+
+/* Общий контейнер */
+.author-info {
+    padding: 1rem;
+    border-left: 4px solid #ddd;
+    background-color: #f9f9f9;
+    border-radius: 0 8px 8px 0;
+    transition: all 0.3s ease;
+}
+
+[data-theme="dark"] .author-info {
+    background-color: #2d2d2d;
+    border-left-color: #555;
+}
+[data-theme="dark"] .blog-entry-2 .author .info h3 span{
+    color:#fff!important;
+}
+[data-theme="light"] a{
+    color: #000000!important;
+}
+[data-theme='dark'] .bg-light{
+    background: #191a1b !important;
+}
+
+/* Текст даты */
+.author-info .date {
+    color: #666 !important;
+    font-size: 0.9em;
+}
+
+[data-theme="dark"] .author-info .date {
+    color: #aaa !important;
+}
+
+/* Имя автора */
+.author-info .author-name {
+    color: #333;
+}
+
+[data-theme="dark"] .author-info .author-name {
+    color: #e0e0e0;
+}
+
+/* Кнопка "Поделиться" */
+.btn-share {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #1eafed !important;
+    color: white !important;
+    padding: 10px 15px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.btn-share:hover {
+    background-color: #1b9dd8 !important;
+    transform: translateY(-1px);
+}
+
+/* В тёмной теме — можно оставить синюю, или сделать акцентной */
+[data-theme="dark"] .btn-share {
+    background-color: #03dac6 !important; /* Материал-акцент */
+    color: #000 !important;
+}
+
+[data-theme="dark"] .btn-share:hover {
+    background-color: #00bfa5 !important;
+}
+
+[data-theme="dark"] .comment-form-wrap {
+    background-color: #1a1a1a !important;
+    color: #e0e0e0;
+}
+
+[data-theme="dark"] .comment-form-wrap h3 {
+    color: #e0e0e0;
+}
+
+/* Форма внутри — убираем bg-light */
+[data-theme="dark"] .comment-form-wrap form {
+    background-color: #2d2d2d !important;
+    padding: 1.5rem !important;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* Метки (label) */
+[data-theme="dark"] .comment-form-wrap label {
+    color: #e0e0e0 !important;
+}
+
+/* Поля ввода */
+[data-theme="dark"] .comment-form-wrap .form-group input,
+[data-theme="dark"] .comment-form-wrap .form-group textarea {
+    background-color: #333 !important;
+    border-color: #555 !important;
+    color: #e0e0e0 !important;
+    border-radius: 6px;
+}
+
+[data-theme="dark"] .comment-form-wrap .form-group input::placeholder,
+[data-theme="dark"] .comment-form-wrap .form-group textarea::placeholder {
+    color: #999 !important;
+}
+
+/* Сообщения об ошибках */
+[data-theme="dark"] .text-danger {
+    color: #ff7675 !important;
+}
+
+/* Подсказки */
+[data-theme="dark"] .form-text.text-muted {
+    color: #aaa !important;
+}
+
+/* Кнопка "Комментировать" */
+[data-theme="dark"] .btn-primary {
+    background-color: #03dac6 !important;
+    border-color: #03dac6 !important;
+    color: #000 !important;
+    font-weight: 500;
+}
+
+[data-theme="dark"] .btn-primary:hover {
+    background-color: #00bfa5 !important;
+    border-color: #00bfa5 !important;
+}
+#theme-toggle {
+    /* Убираем стили Bootstrap, которые мешают */
+    background: none !important;
+    border: 1px solid #ddd !important;
+    color: #333 !important;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+/* Тёмная тема — делаем текст светлым */
+[data-theme="dark"] #theme-toggle {
+    color: #e0e0e0 !important;
+    border-color: #555 !important;
+    background: #2d2d2d !important;
+}
+
+/* При наведении — акцент */
+#theme-toggle:hover {
+    background: #f0f0f0 !important;
+    transform: scale(1.02);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] #theme-toggle:hover {
+    background: #3c3c3c !important;
+    border-color: #777 !important;
+}
+[data-theme="dark"] .sidebar {
+    background-color: #1a1a1a !important;
+    color: #e0e0e0;
+    border-left: 1px solid #444;
+}
+
+[data-theme="dark"] .sidebar-box {
+    background-color: #2d2d2d !important;
+    border: none !important;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="dark"] .sidebar-heading {
+    color: #e3d6d6 !important;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+/* Форма поиска */
+[data-theme="dark"] .search-form .form-group {
+    position: relative;
+    background: #333;
+    border-radius: 25px;
+    overflow: hidden;
+}
+[data-theme="dark"] .search-form .icon-search {
+    color: #aaa;
+}
+[data-theme="dark"] .search-form input {
+    background: #333 !important;
+    color: #e0e0e0 !important;
+    border: none !important;
+    padding-left: 40px !important;
+}
+[data-theme="dark"] .search-form input::placeholder {
+    color: #999 !important;
+}
+
+/* Категории */
+[data-theme="dark"] .categories li {
+    padding: 0.4rem 0;
+    border-bottom: 1px solid #444;
+}
+[data-theme="dark"] .categories li:last-child {
+    border-bottom: none;
+}
+[data-theme="dark"] .categories a {
+    color: #e0e0e0 !important;
+    display: flex;
+    justify-content: space-between;
+    transition: color 0.2s;
+}
+[data-theme="dark"] .categories a:hover {
+    color: #5d03da !important;
+}
+
+/* Блоки статей (популярные, часто просматриваемые) */
+[data-theme="dark"] .block-21 {
+    background: none !important;
+}
+[data-theme="dark"] .block-21 .text {
+    color: #e0e0e0;
+}
+[data-theme="dark"] .block-21 .heading a {
+    color: #82b1ff !important;
+    font-size: 0.95rem;
+}
+[data-theme="dark"] .block-21 .heading a:hover {
+    color: #03dac6 !important;
+}
+[data-theme="dark"] .block-21 .meta div a {
+    color: #aaa !important;
+}
+[data-theme="dark"] .block-21 .meta .icon-calendar,
+[data-theme="dark"] .block-21 .meta .icon-person,
+[data-theme="dark"] .block-21 .meta .icon-chat {
+    color: #888;
+}
+
+/* Подписка */
+[data-theme="dark"] .subs-wrap {
+    background-image: none !important;
+    background-color: #2d2d2d !important;
+    color: #e0e0e0;
+    text-align: center;
+    padding: 2rem 1rem !important;
+}
+[data-theme="dark"] .subs-wrap .overlay {
+    display: none;
+}
+[data-theme="dark"] .subs-wrap h3,
+[data-theme="dark"] .subs-wrap p {
+    color: #e0e0e0;
+}
+[data-theme="dark"] .colorlib-subscribe-form .form-control {
+    background: #333 !important;
+    color: #e0e0e0 !important;
+    border: 1px solid #555 !important;
+    border-radius: 25px !important;
+}
+[data-theme="dark"] .colorlib-subscribe-form .form-control::placeholder {
+    color: #999 !important;
+}
+
+/* Теги (если раскомментируешь) */
+/* [data-theme="dark"] .tagcloud .tag-cloud-link {
+    background: #333 !important;
+    color: #bb86fc !important;
+    border: 1px solid #555 !important;
+    padding: 0.4em 0.8em;
+} */
+
+
+/* Темы */
+[data-theme="dark"] {
+    --bg-color: #1a1a1a;
+    --text-color: #e0e0e0;
+    --link-color: #ffffff;
+    --card-bg: #2d2d2d;
+    --border-color: #444;
+    --menu-bg: #121212;
+    --sidebar-bg: #1e1e1e;
+}
+
+/* === СВЕТЛАЯ ТЕМА (по умолчанию) === */
+[data-theme="light"], [data-theme=""] {
+    --bg-color: #fff;
+    --text-color: #333;
+    --link-color: #ffffff;
+    --card-bg: #f8f9fa;
+    --border-color: #dee2e6;
+    --menu-bg: #f8f9fa;
+    --sidebar-bg: #f8f9fa;
+}
+
+/* === Применение переменных к элементам === */
+body,
+#colorlib-page,
+#colorlib-main,
+#content {
+    background-color: var(--bg-color) !important;
+    color: var(--text-color);
+    transition: all 0.3s ease;
+}
+
+/* Ссылки */
+a,
+#colorlib-logo span {
+    color: var(--link-color) !important;
+}
+
+/* Карточки постов */
+.blog-entry,
+.card {
+    border-color: var(--border-color) !important;
+    transition: all 0.3s ease;
+}
+
+/* Боковая панель */
+#colorlib-aside {
+    background: var(--sidebar-bg) !important;
+    border-right: 1px solid var(--border-color);
+}
+
+/* Навигация */
+
+
+
+[data-theme= 'light' ] .colorlib-aside .colorlib-main-menu ul li a:hover{
+    color:#000000!important;
+}
+[data-theme = "light"].reply:hover{
+    color:black;
+    background-color: #FFFFFF;
+}
+/* Формы */
+.form-control {
+    background-color: var(--card-bg) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-color) !important;
+}
+
+.form-control::placeholder {
+    color: #aaa;
+}
+
+/* Подписка */
+.colorlib-footer h3,
+.colorlib-footer p {
+    color: var(--text-color);
+}
+
+/* loader */
+#ftco-loader {
+    filter: invert(1) hue-rotate(180deg); /* Упрощённая инверсия */
+}
+
+
+
+/* === ИСПРАВЛЕНИЕ: Кнопка "Ответить" в комментариях — видимость в обеих темах === */
+
+.comment-list li .comment-body .reply {
+    padding: 5px 10px;
+    background-color: #e6e6e6;
+    color: #000;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: .1em;
+    font-weight: 400;
+    border-radius: 4px;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.2s ease;
+}
+
+/* При наведении — не становиться чёрной */
+.comment-list li .comment-body .reply:hover,
+.comment-list li .comment-body .reply:focus {
+    background-color: #03dac6 !important; /* Акцентный цвет */
+    color: #000 !important; /* Тёмный текст на светлом фоне */
+    text-decoration: none;
+}
+
+/* В тёмной теме — другая цветовая схема */
+[data-theme="dark"] .comment-list li .comment-body .reply {
+    background-color: #3c3c3c !important;
+    color: #e0e0e0 !important;
+}
+
+[data-theme="dark"] .comment-list li .comment-body .reply:hover,
+[data-theme="dark"] .comment-list li .comment-body .reply:focus {
+    background-color: #03dac6 !important;
+    color: #000 !important;
+}
+/* === ИСПРАВЛЕНИЕ: Кнопка "Ответить" в комментариях — видимость в обеих темах === */
+/* === Круглая кнопка переключения темы === */
+.theme-toggle-btn {
+    background-color: #f0f0f0 !important;
+    border: 1px solid #ddd !important;
+    color: #333 !important;
+    transition: all 0.3s ease;
+}
+
+.theme-toggle-btn:hover {
+    background-color: #e0e0e0 !important;
+    transform: scale(1.1);
+}
+
+/* Тёмная тема */
+[data-theme="dark"] .theme-toggle-btn {
+    background-color: #3c3c3c !important;
+    border-color: #555 !important;
+    color: #e0e0e0 !important;
+}
+
+[data-theme="dark"] .theme-toggle-btn:hover {
+    background-color: #4c4c4c !important;
+}
+/* === Круглая кнопка переключения темы === */
+
+
+/* === ТЁМНАЯ ТЕМА: Страница профиля (profile.html) === */
+
+/* Контейнер профиля */
+[data-theme="dark"] .emp-profile {
+    background-color: #1a1a1a !important;
+    color: #e0e0e0;
+    padding: 1.5rem;
+    border-radius: 8px;
+}
+
+/* Заголовок и имя пользователя */
+[data-theme="dark"] .emp-profile h5 {
+    color: #bb86fc;
+}
+
+/* Информационные строки */
+[data-theme="dark"] .profile-info .row {
+    border-bottom: 1px solid #444;
+}
+
+[data-theme="dark"] .profile-info .row:last-child {
+    border-bottom: none;
+}
+
+[data-theme="dark"] .profile-info strong {
+    color: #e0e0e0;
+}
+
+/* Значения полей */
+[data-theme="dark"] .profile-info .col-md-9 {
+    color: #e0e0e0;
+}
+
+/* Кнопка редактирования */
+[data-theme="dark"] .btn.btn-primary {
+    background-color: #03dac6 !important;
+    border-color: #03dac6 !important;
+    color: #000 !important;
+    transition: all 0.2s ease;
+}
+
+[data-theme="dark"] .btn.btn-primary:hover {
+    background-color: #00bfa5 !important;
+    transform: translateY(-1px);
+}
+
+/* Аватар — рамка */
+[data-theme="dark"] .img-thumbnail {
+    background-color: #2d2d2d !important;
+    border: 1px solid #555 !important;
+}
+
+/* Гарантированное применение темы */
+[data-theme="dark"] body,
+[data-theme="dark"] .blog-section {
+    background: #1a1a1a !important;
+    color: #e0e0e0 !important;
+}
+
+/* Отключаем лишние тени в тёмной теме, если нужно */
+[data-theme="dark"] .blog-entry {
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3) !important;
+}
+/* === ТЁМНАЯ ТЕМА: Страница редактирования профиля (profile_edit.html) === */
+
+/* Основной карточный контейнер */
+[data-theme="dark"] .card {
+    background-color: #2d2d2d !important;
+    color: #e0e0e0;
+    border: 1px solid #444 !important;
+}
+
+[data-theme="dark"] .card-title h4 {
+    color: #bb86fc;
+}
+
+/* Форма и метки */
+[data-theme="dark"] .form-label,
+[data-theme="dark"] label[for] {
+    color: #e0e0e0;
+}
+
+/* Поля ввода */
+[data-theme="dark"] .form-control {
+    background-color: #333 !important;
+    border-color: #555 !important;
+    color: #e0e0e0 !important;
+}
+
+[data-theme="dark"] .form-control::placeholder {
+    color: #999 !important;
+}
+
+/* Сообщения об успехе и ошибках */
+[data-theme="dark"] .alert {
+    background-color: #3c3c3c !important;
+    border-color: #555 !important;
+    color: #e0e0e0 !important;
+}
+
+[data-theme="dark"] .text-danger {
+    color: #ff7675 !important;
+}
+
+/* Кнопка "Загрузить аватар" */
+[data-theme="dark"] .btn.btn-primary {
+    background-color: #03dac6 !important;
+    border-color: #03dac6 !important;
+    color: #000 !important;
+}
+
+[data-theme="dark"] .btn.btn-primary:hover {
+    background-color: #00bfa5 !important;
+    transform: translateY(-1px);
+}
+
+/* Вторичная кнопка — отмена */
+[data-theme="dark"] .btn.btn-secondary {
+    background-color: #555 !important;
+    border-color: #666 !important;
+    color: #e0e0e0 !important;
+}
+
+/* Аватар */
+[data-theme="dark"] .img-thumbnail {
+    background-color: #2d2d2d !important;
+    border: 1px solid #555 !important;
+}
+
+/* Инлайн стили из <style> заменены на классы — удали <style> блок из шаблона */
+/* === ИСПРАВЛЕНИЕ: Синтаксис кода в тёмной теме === */
+
+/* Все <pre> и <code> внутри тёмной темы */
+[data-theme="dark"] pre,
+[data-theme="dark"] code,
+[data-theme="dark"] .highlight pre,
+[data-theme="dark"] .highlight code,
+[data-theme="dark"] .codehilite pre,
+[data-theme="dark"] .codehilite code {
+    background-color: #252525 !important;
+    color: #e0e0e0 !important;
+    border: 1px solid #444 !important;
+    padding: 10px;
+    border-radius: 6px;
+    overflow-x: auto;
+}
+
+/* Сам текст внутри кода — белый */
+[data-theme="dark"] pre code {
+    background: none !important;
+    color: #e0e0e0 !important;
+    font-family: 'Courier New', monospace;
+    font-size: 0.95em;
+}
+
+/* Подсветка синтаксиса: ключевые слова (def, return и т.д.) */
+[data-theme="dark"] pre .k { color: #bb86fc !important; }     /* keywords */
+[data-theme="dark"] pre .kd { color: #bb86fc !important; }    /* keyword.declaration */
+[data-theme="dark"] pre .kn { color: #cf7ae5 !important; }    /* keyword.namespace */
+[data-theme="dark"] pre .nt { color: #bb86fc !important; }    /* name.tag */
+[data-theme="dark"] pre .s,
+[data-theme="dark"] pre .sd,
+[data-theme="dark"] pre .sr { color: #c3e88d !important; }    /* strings, doc, regex */
+[data-theme="dark"] pre .si { color: #ff9e80 !important; }    /* special string (f-strings) */
+[data-theme="dark"] pre .mi { color: #fdcb6e !important; }    /* literal.number.integer */
+[data-theme="dark"] pre .mf { color: #fdcb6e !important; }    /* literal.number.float */
+[data-theme="dark"] pre .nx { color: #82b1ff !important; }    /* name.extension */
+[data-theme="dark"] pre .nf { color: #82b1ff !important; }    /* name.function */
+[data-theme="dark"] pre .nc { color: #80deea !important; }    /* name.class */
+[data-theme="dark"] pre .o { color: #ffffff !important; }     /* operators */
+[data-theme="dark"] pre .ow { color: #cf7ae5 !important; }    /* operator.word (and, or) */
+[data-theme="dark"] pre .c,
+[data-theme="dark"] pre .cm { color: #7f8c8d !important; }    /* comments */
+[data-theme="dark"] pre .ch { color: #7f8c8d !important; }    /* comment.html */
+[data-theme="dark"] pre .cp { color: #7f8c8d !important; }    /* comment.preproc */
+
+/* Переменные, аргументы — нейтральный цвет */
+[data-theme="dark"] pre .n,
+[data-theme="dark"] pre .py { color: #e0e0e0 !important; }
+
+/* None, True, False, self, cls */
+[data-theme="dark"] pre .kc { color: #ff9e80 !important; }
+
+/* Фон вокруг pre — чуть темнее */
+[data-theme="dark"] pre {
+    background: #252525 !important;
+    border: 1px solid #444 !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+/* Фикс: заголовки в тёмной теме */
+[data-theme="dark"] h1,
+[data-theme="dark"] h2,
+[data-theme="dark"] h3,
+[data-theme="dark"] h4,
+[data-theme="dark"] h5,
+[data-theme="dark"] h6,
+[data-theme="dark"] .title,
+[data-theme="dark"] .blog-entry .title a,
+[data-theme="dark"] .col-lg-8 h1 {
+    color: #e0e0e0 !important;
+}
+
+/* Акцент для заголовков статей */
+[data-theme="dark"] .prose h1,
+[data-theme="dark"] .prose h2,
+[data-theme="dark"] .prose h3 {
+    color: #bb86fc !important;
+}

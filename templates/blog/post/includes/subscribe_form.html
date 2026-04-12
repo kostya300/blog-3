@@ -1,0 +1,7 @@
+<form action="{% url 'blog:subscribe' %}" method="post" class="colorlib-subscribe-form">
+    {% csrf_token %}
+    <div class="form-group d-flex">
+        <div class="icon"><span class="icon-paper-plane"></span></div>
+        {{ subscribe_form.email }}
+    </div>
+</form>

@@ -159,6 +159,12 @@ class Post(models.Model):
 
     def __str__(self):
         return self.title
+
+class Subscriber(models.Model):
+    email = models.EmailField(unique=True)
+    subscribed_at = models.DateTimeField(auto_now_add=True)
+    def __str__(self):
+        return self.email
 class CommentLike(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     comment = models.ForeignKey("Comment",on_delete=models.CASCADE,related_name='comment_likes')

@@ -94,12 +94,12 @@
 
         <div class="sidebar-box subs-wrap img py-4" style="background-image: url(images/bg_1.jpg);">
             <div class="overlay"></div>
-            <h3 class="mb-4 sidebar-heading">Newsletter</h3>
+            <h3 class="mb-4 sidebar-heading">Подписка</h3>
             <p class="mb-4">Far far away, behind the word mountains, far from the countries Vokalia</p>
-            <form action="#" class="subscribe-form">
-                <div class="form-group">
-                    <input type="text" class="form-control" placeholder="Email Address">
-                    <input type="submit" value="Subscribe" class="mt-2 btn btn-white submit">
+            <form action="{% url 'blog:subscribe' %}" method="post" class="colorlib-subscribe-form">
+                {% csrf_token %}
+                <div class="">
+                    {{ subscribe_form.email }}
                 </div>
             </form>
         </div>

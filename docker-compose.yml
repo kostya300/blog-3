@@ -29,8 +29,10 @@ services:
       python manage.py collectstatic --noinput &&
       gunicorn Course_FirstProject.wsgi:application --bind 0.0.0.0:8000"
     volumes:
-      - ./media:/app/media
+      - .:/code
+      - .:/app # монтируем текущую директорию в контейнер
       - ./staticfiles:/app/staticfiles
+      - ./media:/app/media
     ports:
       - "8000:8000"
     depends_on:
@@ -43,4 +45,6 @@ services:
     restart: unless-stopped
 
 volumes:
+  static_volume:
   postgres_data:
+  media_volume:

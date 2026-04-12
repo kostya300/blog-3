@@ -1,17 +1,23 @@
 {% load static %}
-<p class="date">
-    Дата публикации {{ post.publish }} от {{ post.author }}
-</p>
-<!-- Аватар пользователя -->
-<div class="vcard bio">
-    {% if post.author.profile.avatar %}
-        <img src="{{ post.author.profile.avatar.url }}" alt="{{ post.author }}" width="50" height="50" class="rounded-circle">
-    {% else %}
-        <img src="/static/images/avatar.jpg" alt="Author" class="img-fluid rounded-circle" width="100" height="100">
-    {% endif %}
+<div class="author-info mt-4 mb-5">
+    <p class="date text-muted small">
+        Опубликовано {{ post.publish|date:"d.m.Y H:i" }} • Автор: {{ post.author }}
+    </p>
+
+    <!-- Аватар и имя -->
+    <div class="vcard bio d-flex align-items-center">
+        {% if post.author.profile.avatar %}
+            <img src="{{ post.author.profile.avatar.url }}" alt="{{ post.author }}" width="50" height="50" class="rounded-circle mr-3">
+        {% else %}
+            <img src="{% static 'images/avatar.jpg' %}" alt="Author" class="rounded-circle mr-3" width="50" height="50">
+        {% endif %}
+        <strong class="author-name">{{ post.author }}</strong>
+    </div>
+
+    <!-- Кнопка "Поделиться" -->
+    <p class="mt-3">
+        <a href="{% url 'blog:post_share' post.id %}" class="btn-share btn btn-sm">
+            🔄 Поделиться записью
+        </a>
+    </p>
 </div>
-<p>
-    <a href="{% url 'blog:post_share' post.id %}" style="display: flex;background-color: #1eafed;color: white;padding: 10px 15px;border-radius: 4px;">
-        Поделится записью
-    </a>
-</p>

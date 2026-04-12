@@ -1,0 +1,507 @@
+Блок 1
+Техническая часть 1
+
+Первое, что я вижу, — это надпись.
+State diagnostics, monitoring of physical, emotional, mental and trading activity, AI scanning for transformation.
+Ну типа Sounds good! =)
+
+
+какие два модуля были запущены 01.03.2026 и 06.03.2026
+Benchmark Update: Test History & Comparison06.03.2026
+
+MT5Uploaded 01.03.2026
+
+Второе «важное замечание сервис временно обновляют», я так понял.
+We are performing scheduled platform upgrades. Maintenance may take several days, during which access is limited. Please check back later. Thank you for your understanding and patience!
+https://95.163.241.164/accounts/domains/  вот по этому адресу grid сетка поехала
+
+<!-- Social Media & Quick Links -->
+@media (min-width: 992px) {
+   .col-lg-6 {
+       flex: 0 0 auto;
+       /* width: 50%; */
+   }
+} я убрал это и они встали ровно
+
+У меня были скрипты на kali linux для тестировния API
+
+
+for method in GET POST PUT DELETE HEAD OPTIONS; do
+ echo "Testing $method on /api:"
+ curl -X $method "https://95.163.241.164/api" -I -s | head -n 1
+done
+Testing GET on /api:
+HTTP/1.1 404 Not Found
+Testing POST on /api:
+HTTP/1.1 404 Not Found
+Testing PUT on /api:
+HTTP/1.1 404 Not Found
+Testing DELETE on /api:
+HTTP/1.1 404 Not Found
+Testing HEAD on /api:
+HTTP/1.1 404 Not Found
+Testing OPTIONS on /api:
+HTTP/1.1 404 Not Found
+
+
+for endpoint in "api" "v1" "v2" "rest" "auth" "login" "users" "data" "info" "status" "health" "version"; do
+ echo "Testing: /$endpoint"
+ response=$(curl -s -o /dev/null -w "%{http_code}" "https://95.163.241.164/$endpoint")
+ if [[ $response =~ ^(200|401|403|301|302)$ ]]; then
+   echo "FOUND: /$endpoint -> $response"
+ fi
+done
+Testing: /api
+Testing: /v1
+Testing: /v2
+Testing: /rest
+Testing: /auth
+Testing: /login
+Testing: /users
+Testing: /data
+Testing: /info
+Testing: /status
+Testing: /health
+Testing: /version
+
+на первый взгляд я не чего такого плохого не увидел
+
+
+
+
+
+
+Пользовательские впечатления.
+Первое, что бросилось в глаза после регистрации, это то, что я не сразу понял, где Logout?
+
+И еще кнопка, что для того, чтобы поменять светлую тему на тёмную, не по центру.
+Я решил заглянуть в код, и вот.
+
+display: inline-block;
+
+font-family: bootstrap-icons !important;
+
+font-style: normal;
+
+font-weight: normal !important;
+
+font-variant: normal;
+
+text-transform: none;
+
+line-height: 1;
+
+vertical-align: -0.175em; отцентрировал
+
+margin-left: 0.10em; и вот это я добавил что бы встало точно по центру хотя на мобилке я не проверял
+
+-webkit-font-smoothing: antialiased;
+
+
+При первом посещений я не увидел login и rfegister  только test the platform не все поймут
+нужно добавить возможность заходить сразу с этой же страницы ну привязать ссылку в html и прописать в диспетчере url адресов
+Это ж доступность.
+
+Блок 2. Русская версия платформы
+
+в поём пет проекте был такой способ установки локализпции
+
+# Internationalization
+# https://docs.djangoproject.com/en/6.0/topics/i18n/
+
+LANGUAGE_CODE = 'ru'
+TIME_ZONE = 'Europe/Moscow'
+USE_I18N = True
+USE_L10N = True
+USE_TZ = True
+
+есть еще какой то вариант ,типа оборачивать в {% trans %} Но я его не использовал хотя почему бы и нет
+можно подключить в
+MIDDLEWARE='django.middleware.locale.LocaleMiddleware'
+и импортировать в определённое место
+from django.utils.translation import gettext_lazy as _
+
+name = _("Hahaha")
+других вариантоа не встречал +- тоже самое
+
+
+
+
+
+Блок 3. Навести порядок во фронтенде
+
+
+
+
+У меня в прокте всегда например static и там папка js css scss font и т д
+можно сделать templates но он у меня в общей папке пока что.
+Ну я так понял надо скопировать js в js ,css в style.css напммер и разместить по папкам и уже потом подключать в шаблоны
+по необходимости.
+Я использовал Принцип DRY
+
+На счёт тёмной и светлой темы, я не верстал такие штуки, но я думаю, там можно легко решить вопрос, имея исходный код.
+Ну или самому реализовать при необходимости .
+
+Насчет инструментов, какие использовал.
+
+Gulp для веб-разработки, ну, это были просто учебные проекты.
+
+Сейчас пользуюсь Django, на нём можно легко создать фуллстек-приложение.
+
+Плюсы в том, что многие вещи не надо делать с нуля.
+
+Тот же Bootstrap имеет уже встроенные решения по типу выпадающих списков и т. д.
+
+Есть бесплатные шаблоны для Bootstrap, можно использовать готовые решения, что влияет на скорость разработки положительно.
+
+В Django есть автозаполнение, что экономит время разработки, и у него ещё есть GigaChat Code, что для меня, как для неопытного, огромный ПЛЮС.
+
+Делал я не так давно интеграцию погоды из яндекса в context_processer.py я добавил это
+
+
+
+import requests
+
+def weather_context(request):
+  access_key = '5b263cd9-9216-441d-8920-286359af7072'
+  headers = {"X-Yandex-Weather-Key": access_key}
+
+  query = """
+  {
+      weatherByPoint(request: { lat: 56.8389, lon: 60.6057 }) {
+          now {
+              temperature
+          }
+      }
+  }
+  """
+
+  try:
+      response = requests.post(
+          'https://api.weather.yandex.ru/graphql/query',
+          headers=headers,
+          json={'query': query},
+          timeout=5
+      )
+      if response.status_code == 200:
+          data = response.json()
+          temperature = data['data']['weatherByPoint']['now']['temperature']
+          return {'weather_temperature': temperature}
+  except Exception:
+      pass
+
+  return {'weather_temperature': None}
+
+Подключил это делао в settings.py TEMPLATES = {
+
+Context_processer
+
+}
+
+Так же я подключил шаблон в главнуб страницу через {% include ‘weather.html’ %}
+
+Ну и конечно исначально я получал ключ доступа к API и GraphQL
+
+
+Блоки 4,5,6.
+
+я такое не встречал и не работал с таким ну готов освоить всё необходимое
+думаю в интеренете всё в открытом доступе
+Мне очень нраваится всё что связано с AI LLM ML
+ту же Погоду в проект я добавил примерно за 10 минут хотя это проще
+это я понимаю
+Конечно же я Не ML- инженер но готов оствоить инструменты для работы с этим.
+Думаю это вполне реально учитывая что мне не предлагают фултайм.
+
+Блок 7. Уведомления на iPhone через Bark
+
+Ну я пару раз интегрировал ИИ но вот не так просто ,Весит Слишком МНОГО
+С этим Bark не знаком
+Думаю я бы смог внедрить это за один день ,конечно утверждение оч смелое но всё же.
+
+Блок 8. 3D-модели на сайте
+Не работал много с анимацией если честно.
+Я хотел внедрить 3d модель в мой проект сделал через Three.js через загрузку на главную страницу
+это похоже на экперимент нежели на полностью рабочий вариант ,думаю это можно освоить и применть как то на практике.
+
+
+
+Блок 9. Внутренняя система сотрудников (учёт времени и результата разработки + GitLab)
+
+
+
+
+У меня есть и GItLAb и Github но я не работал с учётом времени и тому подобное
+
+
+
+
+Блок 10. Устранение неточностей на сайте
+
+
+
+Неточности были на страницк https://95.163.241.164/accounts/domains/
+Блоки не ровные
+@media (min-width: 992px) {
+   .col-lg-6 {
+       flex: 0 0 auto;
+       width: 50%;
+   }
+то есть сетка неровная
+
+вот ещё границы слева у блоков
+element.style {
+   border-left: 4px solid var(--accent);
+}
+это я бы убрал и помети бы просто как НОВОЕ
+
+.badge-purpose {
+   font-size: 0.7rem;
+   padding: 0.2rem 0.6rem;
+   border-radius: 12px;
+   background: var(--accent-light);
+   color: var(--text);
+   margin-left: 0.5rem;
+   vertical-align: middle;
+}
+https://qubitrinotech.ru/   вот на этой странице я не заметил большие неточности
+
+
+
+Блок 11. Развертывание для продакшена
+
+
+Nginx — веб-сервер
+Он принимает HTTP-запросы
+Обрабатывет статику
+Gunicorn - Интерфейс шлюза веб-сервера
+Запускает проект django Или flask
+Возвращает http ответы на запросы сервера Nginx я так понимаю
+
+Клиент запрвшивает через Nginx и Gunicorn данные из приложения django
+Приложение взаимодействует с PostgresQL для получение и хранения данных
+Обрабатывает и возвращает запросы
+Всё идёт обратно от сервера к Nginx и потом к  клиенту
+
+Другие варианты я не рассматривал Кроме может быть Docker
+Ну там наверное +- тоже самое
+
+Без докера
+Примернр так я делал  в учебном прокте давно
+
+Сначала нужно найти vps или vds
+нужно зайти по ssh например
+Создать пользователя от имени root
+adduser user
+Нукжно датьб права
+usermod -aG sudo user
+Нужно дать права для www-data пользователя для работы с веб сервисами gunicorn Nginx
+usermod -a -G user www-data
+Зайти в созданного user
+ssh user@host
+далее нужно создать окружение и БД
+
+Далее нужно установить БД
+sudo apt install postgresql postgresql-contrib
+
+sudo -u postgresql psql - зайти
+CREATE DATABASE name_db;
+CREATE ROLE user_prod with password 'passwd';
+ALTER ROLE "user_prod" WITH LOGIN;
+GRAND ALL PRIVILEGES ON DATABASE "name_db" to user_prod;
+ALTER USER user_prod CREATEDB;
+
+
+Окружение
+
+mkdir prod
+cd prod/
+
+python3 -m venv venv
+source venv/bin/activate
+Далее я переносил файлы
+можно просто клонироватиь или перенести это через файловую систему
+потом создать Миграции
+настроить статические файлы
+
+далее apt install gunicorn
+
+
+файл для работы с сокетами от gUnicorn
+sudo nano /etc/systemd/system/gunicorn.socket
+
+[Unit]
+Description=Gunicorn socket
+
+[Socket]
+ListenStream=/run/gunicorn.sock
+
+[Install]
+WantedBy=sockets.target
+
+ctrl + s
+ctrl + z
+
+sudo nano /etc/systemd/system/gunicorn.service
+[Unit]
+Description=Gunicorn daemon for Django project
+Requires=gunicorn.socket
+After=network.target
+
+[Service]
+User=user
+Group=www-data
+WorkingDirectory=/путь до проекта на сервере
+ExecStart=/path/to/venv/bin/gunicorn \
+ --access-logfile - \
+ --workers 3 \
+ --bind unix:/run/gunicorn.sock \
+ project.wsgi:application
+
+[Install]
+WantedBy=multi-user.target
+
+указать в хосты
+/etc/hosts
+127.0.0.1   name_project
+
+systemctl start gunicorn.socket
+
+symlink
+systemctl enable gunicorn.socket
+
+УСТАНОВКА NGINX
+
+sudo apt install nginx
+
+sudo nano /etc/nginx/sites-available/name_project
+
+server {
+   listen: 80,
+   server_name 123.123.123.123
+
+
+   location /static/ {
+   root /path/to/your/static/files/;
+   location / {
+       include proxy_params;
+       proxy_pass http://unix:/run/gunicorn.sokc;
+   }
+}
+
+
+sudo ln -s /etc/nginx/sites-available/name_project /etc/nginx/sites-enable
+
+sudo nginx -t
+sudo systemctl restart nginx
+
+
+
+
+Я делал контейнер и вот мой пример Dokerfile
+
+
+FROM python:3.12-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+
+RUN apt-get update && apt-get install -y netcat-openbsd && rm -rf /var/lib/apt/lists/*
+
+# Сборка статики — работает благодаря default SECRET_KEY в settings.py
+RUN python manage.py collectstatic --noinput
+
+EXPOSE 8000
+
+CMD ["gunicorn", "Course_FirstProject.wsgi:application", "--bind", "0.0.0.0:8000"]
+
+
+
+еще у меня был docker-compose.yml
+
+version: '3.8'
+
+services:
+ db:
+   image: postgres:16
+   env_file: .env
+   environment:
+     POSTGRES_DB: ${DB_NAME}
+     POSTGRES_USER: ${DB_USER}
+     POSTGRES_PASSWORD: ${DB_PASSWORD}
+   volumes:
+     - postgres_data:/var/lib/postgresql/data/
+   restart: unless-stopped
+
+ redis:
+   image: redis:7
+   restart: unless-stopped
+
+ web:
+   build: .
+   command: >
+     sh -c "
+     while ! nc -z db 5432; do
+       echo 'Ожидание БД...';
+       sleep 2;
+     done;
+     echo 'БД готова!';
+     python manage.py migrate &&
+     python manage.py collectstatic --noinput &&
+     gunicorn Course_FirstProject.wsgi:application --bind 0.0.0.0:8000"
+   volumes:
+     - .:/app # монтируем текущую директорию в контейнер
+     - ./media:/app/media
+     - ./staticfiles:/app/staticfiles
+   ports:
+     - "8000:8000"
+   depends_on:
+     - db
+     - redis
+   env_file: .env
+   environment:
+     - DB_HOST=db
+     - REDIS_URL=redis://redis:6379/1
+   restart: unless-stopped
+
+volumes:
+ postgres_data:
+
+
+docker-compose up -d  Сборка контейнера(разумеется было куча ошибок)
+
+
+Впрос про храниние ключей я погимаю так.
+Знаю что серктные ключи и тому подобные данные нужно хранить в .env но вот на продакщшене я знаю что они хранятся отдельно на каком то сервере
+что бы хранить их  в безопасности.
+Ключи могут быть у любого через клонирование и ревёрс и нжиниоинг или декомпиляцию.
+С такими вещами я не работал  и вообще не работал в продакшене.
+
+Вопросы про Продакшн я пропущу так как не работал на продакшене
+
+Я изучал средства мониторинка такие как elasticsearch
+Это некая система управления событиями в системе безопасности для SOC
+Отследить ддос атаку или брутфорс можно.
+
+Ci CD это процесс интеграции и развёртывания вот как раз думаю Изучать этот вопрос более подробно
+Хочу научитсчя писать пайплайны в Дженкинс типа когда я буду делать git push origin branch то у меня будет поступать обновление
+
+
+Блок 12. Творческий проект
+Это и к 12-му относится
+
+Блоки 4,5,6,12
+
+я такое не встречал и не работал с таким ну котов освоить всё необходимое
+думаю в интеренете всё в открытом доступе
+Мне очень нраваится всё что связано с AI LLM ML
+ту же Погоду в проект я добавил примерно за 10 минут хотя это проще
+это я понимаю
+Конечно же я Не ML- инженер но готов оствоить инструменты для работы с этим
+думаю это вполне реально учитывая что мне не предлагают фултайм.
+

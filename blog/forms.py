@@ -1,5 +1,5 @@
 from django import forms
-from .models import Comment, Post
+from .models import Comment, Post,Subscriber
 from django_ckeditor_5.widgets import CKEditor5Widget  # Импортируем новый виджет
 
 
@@ -50,8 +50,16 @@ class SearchForm(forms.Form):
             'placeholder': 'Поиск'
         })
     )
-
-
+class SubscribeForm(forms.ModelForm):
+    class Meta:
+        model = Subscriber
+        fields = ['email']
+        widgets = {
+            'email': forms.EmailInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Введите ваш email'
+            })
+        }
 class CommentForm(forms.ModelForm):
     class Meta:
         model = Comment
